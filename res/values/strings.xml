@@ -4,5 +4,11 @@
     <string name="app_name">leggo</string>
     <string name="action_settings">Settings</string>
     <string name="action_manage">Manage Feeds</string>
+    <string name="url_prompt">URL</string>
+    <string name="add_feed_hint">Add Feed URL Here</string>
+    <string name="atom_feed">Atom Feed</string>
+    <string name="rss_feed">RSS Feed</string>
+    <string name="add_feed">Add Feed</string>
+    <string name="feeds_header">Feeds</string>
 
 </resources>
