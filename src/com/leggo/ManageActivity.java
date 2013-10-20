@@ -275,5 +275,6 @@ public class ManageActivity extends Activity {
 	public void viewFeed(Feed feed)
 	{
 		Log.d("FEEDS", "Yes, the feed will be launched");
+		//TODO: implement this. Might need to add a new activity.
 	}
 }
