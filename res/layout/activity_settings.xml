@@ -1,13 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-        <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Settings Activity Here" />
-    
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-</LinearLayout>
+    <PreferenceCategory
+        android:summary="Google Accounts"
+        android:title="@string/google_accounts_title" >
+
+    <ListPreference
+         android:key="account_selection"
+         android:title="@string/account_title"
+         android:summary="Select Google Account"
+         android:defaultValue="None"/>
+
+        <Preference
+            android:key="add_account"
+            android:summary="Add a Google Account"
+            android:title="@string/add_account_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:summary="General Settings"
+        android:title="@string/general_settings_title" >
+
+        <CheckBoxPreference
+            android:key="autoMarkAsRead"
+            android:summary="On/Off"
+            android:title="Automatically Mark as Read" />
+
+        <CheckBoxPreference
+            android:key="nightMode"
+            android:summary="On/Off"
+            android:title="Night Mode" />
+
+        <ListPreference
+            android:entries="@array/fontSizeOptions"
+            android:entryValues="@array/fontSizeValues"
+            android:key="fontSize"
+            android:summary="Select a Font Size"
+            android:title="@string/font_size_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
