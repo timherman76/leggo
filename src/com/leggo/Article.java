@@ -1,5 +1,9 @@
 package com.leggo;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Article {
 	
 	protected String URL;
@@ -65,4 +69,64 @@ public class Article {
 		this.title = title;
 	}
 		
+
+	
+	public List<ArticleSearchResult> search(String searchExpr, List<Article> articles){
+		List<ArticleSearchResult> result = new ArrayList<ArticleSearchResult>();
+		int relevance = -1;
+		searchExpr = searchExpr.toLowerCase();
+		
+		for(Article a : articles){
+			String aName = a.getTitle().toLowerCase();
+			String aURL = a.getURL().toLowerCase();
+		
+			if ( searchExpr.equals(aName) || searchExpr.equals(aURL) ){
+				relevance = 0;
+			}
+			else{
+				int nameIdx = aName.indexOf(searchExpr);
+				if(nameIdx >= 0){
+					relevance = 100 + nameIdx;
+				}else {
+					int urlIdx = aURL.indexOf(searchExpr);
+					if(urlIdx >= 0){
+						relevance = 200 + urlIdx;
+					}
+				}
+			}
+			
+			if ( relevance >= 0 ){
+				result.add(new ArticleSearchResult(a, relevance));
+			}
+			
+			Collections.sort(result);
+		}
+		
+		return result;
+	}
+	
+	public class ArticleSearchResult implements Comparable<ArticleSearchResult>{
+		
+		public Article article;
+		public int relevance;
+		
+		public ArticleSearchResult(Article article, int relevance){
+			this.article = article;
+			this.relevance = relevance;
+		}
+		
+		@Override
+		public int compareTo(ArticleSearchResult arg0) {
+			int result = 0;
+			if (arg0 == null || arg0.relevance < this.relevance){
+				result = -1;
+			}else if ( arg0.relevance > this.relevance){
+				result = 1;
+			}else{
+				result = this.article.getTitle().compareTo(arg0.article.getTitle());
+			}
+			return result;
+		}
+	}
+	
 }

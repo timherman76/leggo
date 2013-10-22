@@ -1,6 +1,7 @@
 package com.leggo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Feed {
@@ -62,8 +63,8 @@ public class Feed {
 		searchExpr = searchExpr.toLowerCase();
 		
 		for(Feed f : feeds){
-			String fName = f.Name.toLowerCase();
-			String fURL = f.URL.toLowerCase();
+			String fName = f.getName().toLowerCase();
+			String fURL = f.getURL().toLowerCase();
 		
 			if ( searchExpr.equals(fName) || searchExpr.equals(fURL) ){
 				relevance = 0;
@@ -83,18 +84,34 @@ public class Feed {
 			if ( relevance >= 0 ){
 				result.add(new FeedSearchResult(f, relevance));
 			}
+			
+			Collections.sort(result);
 		}
 		
 		return result;
 	}
 	
-	public class FeedSearchResult{
+	public class FeedSearchResult implements Comparable<FeedSearchResult>{
+		
 		public Feed feed;
 		public int relevance;
 		
 		public FeedSearchResult(Feed feed, int relevance){
 			this.feed = feed;
 			this.relevance = relevance;
+		}
+		
+		@Override
+		public int compareTo(FeedSearchResult arg0) {
+			int result = 0;
+			if (arg0 == null || arg0.relevance < this.relevance){
+				result = -1;
+			}else if ( arg0.relevance > this.relevance){
+				result = 1;
+			}else{
+				result = this.feed.getName().compareTo(arg0.feed.getName());
+			}
+			return result;
 		}
 	}
 	
