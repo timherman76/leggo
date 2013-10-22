@@ -2,9 +2,7 @@ package com.leggo.parsing;
 
 import java.io.IOException;
 
-import org.jsoup.*;
-
-import javax.xml.*;
+import org.jsoup.Connection;
 
 public interface WebCommand {
 

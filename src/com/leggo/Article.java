@@ -54,7 +54,7 @@ public class Article {
 	}
 
 	public void setFeed(Feed feed) {
-		feed = feed;
+		this.feed = feed;
 	}
 	
 	public String getTitle() {
