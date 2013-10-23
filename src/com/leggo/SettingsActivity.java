@@ -42,11 +42,12 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.layout.activity_settings);
 
 		// Create shared preference and set the name
 		prefManager = getPreferenceManager();
 		prefManager.setSharedPreferencesName(ACCOUNT_PREFERENCE_NAME);
+		
+		addPreferencesFromResource(R.layout.activity_settings);
 
 		accountSelectionPref = (ListPreference) findPreference("account_selection");
 
