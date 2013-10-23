@@ -8,8 +8,7 @@
     <ListPreference
          android:key="account_selection"
          android:title="@string/account_title"
-         android:summary="Select Google Account"
-         android:defaultValue="None"/>
+         android:summary="Select Google Account"/>
 
         <Preference
             android:key="add_account"

@@ -16,6 +16,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -27,9 +28,11 @@ public class SettingsActivity extends PreferenceActivity {
 	private PreferenceManager prefManager;
 	private OnPreferenceChangeListener accountChangeListener;
 
-	public final String ACCOUNT_PREFERENCE_NAME = "account_select_pref";
-	public final String ACCOUNT_SELECTION = "account_selection";
-	public final String NO_ACCOUNT_NAME = "None";
+	private ListPreference accountSelectionPref;
+
+	public final static String ACCOUNT_PREFERENCE_NAME = "account_select_pref";
+	public final static String ACCOUNT_SELECTION = "account_selection";
+	public final static String NO_ACCOUNT_NAME = "None";
 
 	private String[] idRequests;
 	private int id;
@@ -45,6 +48,8 @@ public class SettingsActivity extends PreferenceActivity {
 		prefManager = getPreferenceManager();
 		prefManager.setSharedPreferencesName(ACCOUNT_PREFERENCE_NAME);
 
+		accountSelectionPref = (ListPreference) findPreference("account_selection");
+
 		context = this;
 
 		id = 0;
@@ -57,8 +62,15 @@ public class SettingsActivity extends PreferenceActivity {
 				if (preference.getKey().equals(ACCOUNT_SELECTION)) {
 					// Set accountName a newValue
 					String accountName = (String) newValue;
+
 					// If there is no account name, set to no account
-					if (accountName.equals(NO_ACCOUNT_NAME)) return true;
+					if (accountName.equals(NO_ACCOUNT_NAME)){ 
+						ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
+						accountPref.setValue(NO_ACCOUNT_NAME);
+						accountSelectionPref.setSummary("Logged in as: " + NO_ACCOUNT_NAME);
+						
+						return true;
+						}
 
 					// Store accounts into array
 					AccountManager accountManager = AccountManager.get(getApplicationContext());
@@ -68,8 +80,8 @@ public class SettingsActivity extends PreferenceActivity {
 					int accountIndex = 0;
 					for (Account account : accounts) {
 						if (account.name.equals(accountName)) {
-							Toast.makeText(context, "Switched to " + account.name, Toast.LENGTH_SHORT).show();
 							accountManager.getAuthToken(accounts[accountIndex], "ah", true, new GetAuthTokenCallBack(accountName), null);
+
 							return false;
 						}
 						accountIndex++;
@@ -120,6 +132,9 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		accountSelectionPref.setSummary("Logged in as: " + prefs.getString("account_selection", "default"));
+
 		getAccountEntries();
 	}
 
@@ -170,6 +185,7 @@ public class SettingsActivity extends PreferenceActivity {
 					Toast.makeText(context, "DEBUG: Already Have Permission, Auth_TOKEN:" + auth_token, Toast.LENGTH_SHORT).show();
 					ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 					accountPref.setValue(accountName);
+					accountSelectionPref.setSummary("Logged in as: " + accountName);
 
 				} else {
 					// Send permission prompt intent.
@@ -210,17 +226,19 @@ public class SettingsActivity extends PreferenceActivity {
 				// Set preference to this new account
 				ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 				accountPref.setValue(accountName);
+				accountSelectionPref.setSummary("Logged in as: " + accountName);
 				idRequests[requestCode] = null;
 				Toast.makeText(context, "Account Access Granted", Toast.LENGTH_SHORT).show();
 			}
+			// User denies permission
+			else if (resultCode == RESULT_CANCELED) {
+				// Set preference to 'None' account
+				ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
+				accountPref.setValue(NO_ACCOUNT_NAME);
+				accountSelectionPref.setSummary("Logged in as: " + NO_ACCOUNT_NAME);
+				Toast.makeText(context, "Account Access Denied", Toast.LENGTH_SHORT).show();
+			}
 		}
-		// User denies permission
-		else if (resultCode == RESULT_CANCELED) {
-			// Set preference to 'None' account
-			ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
-			accountPref.setValue(NO_ACCOUNT_NAME);
-			Toast.makeText(context, "Account Access Denied", Toast.LENGTH_SHORT).show();
-		}
-	}
 
+	}
 }
