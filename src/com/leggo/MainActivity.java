@@ -3,7 +3,6 @@ package com.leggo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -21,12 +20,17 @@ public class MainActivity extends Activity {
 	private Context context;
 	private String currentAccountName;
 
+	private SharedPreferences prefs;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		context = this;
+
+		prefs = context.getSharedPreferences(
+				SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
 
 	}
 
@@ -59,27 +63,41 @@ public class MainActivity extends Activity {
 		if (networkAvailability() == false) {
 			noNetworkAlert();
 		}
-		SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
-		currentAccountName = prefs.getString("account_selection", "default");
-		Toast.makeText(context, "Currently logged in to " + currentAccountName, Toast.LENGTH_SHORT).show();
 
-		if (currentAccountName.equals("None") || currentAccountName.equals("default")) {
-			noAccountAlert();
-		} else {
-			AccountManager accountManager = AccountManager.get(getApplicationContext());
-			Account[] accounts = accountManager.getAccountsByType("com.google");
+		else {
+			currentAccountName = prefs
+					.getString("account_selection", "default");
+			Toast.makeText(context,
+					"Currently logged in to " + currentAccountName,
+					Toast.LENGTH_SHORT).show();
 
-			// Find index where account is and then try to get token
-			int accountIndex = 0;
-			for (Account account : accounts) {
-				if (account.name.equals(currentAccountName)) {
-					// get cookie here
+			if (currentAccountName.equals("None")
+					|| currentAccountName.equals("default")) {
+				noAccountAlert();
+			} else {
+				AccountManager accountManager = AccountManager
+						.get(getApplicationContext());
+				Account[] accounts = accountManager
+						.getAccountsByType("com.google");
+
+				// Find index where account is and then try to get token
+				int accountIndex = 0;
+				for (Account account : accounts) {
+					if (account.name.equals(currentAccountName)) {
+						// Get cookie here.
+						String auth_token = prefs
+								.getString("token", "default");
+						Toast.makeText(context, "" + auth_token,
+								Toast.LENGTH_SHORT).show();
+						
+					}
+					accountIndex++;
 				}
-				accountIndex++;
-			}
 
-			if (accountIndex < accounts.length) {
-				// Account doesn't exist anymore for some reason.
+				if (accountIndex < accounts.length) {
+					// Account doesn't exist anymore for some reason.
+					noAccountAlert();
+				}
 			}
 		}
 	}
@@ -91,21 +109,33 @@ public class MainActivity extends Activity {
 	}
 
 	private void noNetworkAlert() {
-		new AlertDialog.Builder(this).setTitle("No Network Connection").setMessage("leggo cannot detect a network connection on this device.  Please check Network Settings to connect to an available network to use leggo.").setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				// nothing
-			}
-		}).show();
+		new AlertDialog.Builder(this)
+				.setTitle("No Network Connection")
+				.setMessage(
+						"leggo cannot detect a network connection on this device.  Please check Network Settings to connect to an available network to use leggo.")
+				.setPositiveButton("Okay",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// nothing
+							}
+						}).show();
 	}
 
 	private void noAccountAlert() {
-		new AlertDialog.Builder(this).setTitle("No Google Account Selected").setMessage("leggo requires a Google Account to store your subscriptions.  Please select an existing account or create an account in Settings.").setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				Intent i = null;
-				i = new Intent(context, SettingsActivity.class);
-				startActivity(i);
-			}
-		}).show();
+		new AlertDialog.Builder(this)
+				.setTitle("No Google Account Selected")
+				.setMessage(
+						"leggo requires a Google Account to store your subscriptions.  Please select an existing account or create an account in Settings.")
+				.setPositiveButton("Settings",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Intent i = null;
+								i = new Intent(context, SettingsActivity.class);
+								startActivity(i);
+							}
+						}).show();
 	}
 
 }
