@@ -91,6 +91,16 @@ public class Feed {
 		return result;
 	}
 	
+	@Override
+	public boolean equals(Object obj){
+		boolean result = false;
+		if ( obj != null && obj instanceof Feed){
+			Feed a = (Feed) obj;
+			result = this.getURL().equalsIgnoreCase(a.getURL());
+		}
+		return result;
+	}
+	
 	public class FeedSearchResult implements Comparable<FeedSearchResult>{
 		
 		public Feed feed;

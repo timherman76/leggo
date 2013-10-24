@@ -69,7 +69,15 @@ public class Article {
 		this.title = title;
 	}
 		
-
+	@Override
+	public boolean equals(Object obj){
+		boolean result = false;
+		if ( obj != null && obj instanceof Article){
+			Article a = (Article) obj;
+			result = this.getURL().equalsIgnoreCase(a.getURL());
+		}
+		return result;
+	}
 	
 	public List<ArticleSearchResult> search(String searchExpr, List<Article> articles){
 		List<ArticleSearchResult> result = new ArrayList<ArticleSearchResult>();
@@ -105,6 +113,17 @@ public class Article {
 		return result;
 	}
 	
+	public static List<Article> GetArticlesByFeed(Feed feed, List<Article> articles){
+		List<Article> result = new ArrayList<Article>();
+		for(Article a : articles){
+			if ( a.getFeed() != null && a.getFeed().equals(feed)){
+				result.add(a);
+			}
+		}
+		
+		return result;
+	}
+	
 	public class ArticleSearchResult implements Comparable<ArticleSearchResult>{
 		
 		public Article article;
@@ -128,5 +147,7 @@ public class Article {
 			return result;
 		}
 	}
+	
+	
 	
 }
