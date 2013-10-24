@@ -1,8 +1,7 @@
 package com.leggo;
 
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Bundle;
+import java.io.File;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -11,13 +10,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.leggo.parsing.GetArticlesCommand;
+import com.leggo.parsing.GetFeedsCommand;
+
 public class MainActivity extends Activity {
 
-	private Context context;
+
+	public static final String TAG = "MainActivity";	private Context context;
 	private String currentAccountName;
 
 	private SharedPreferences prefs;
@@ -31,7 +38,8 @@ public class MainActivity extends Activity {
 
 		prefs = context.getSharedPreferences(
 				SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
-
+		
+		testGetFeeds();
 	}
 
 	@Override
@@ -136,6 +144,34 @@ public class MainActivity extends Activity {
 								startActivity(i);
 							}
 						}).show();
+	}
+	
+	public Object testGetArticles(){
+		Object result = null;
+		try{
+			File dir = this.getFilesDir();
+			String fileName = "simplecta_all.htm";
+			String testFile = new File(dir + File.separator + fileName).getAbsolutePath();
+			GetArticlesCommand cmd = new GetArticlesCommand();
+			result = cmd.testFromFile(testFile);
+		}catch (Throwable ex){
+			Log.e(TAG, ex.getMessage(), ex);
+		}
+		return result;
+	}
+	
+	public Object testGetFeeds(){
+		Object result = null;
+		try{
+			File dir = this.getFilesDir();
+			String fileName = "simplecta_feeds.htm";
+			String testFile = new File(dir + File.separator + fileName).getAbsolutePath();
+			GetFeedsCommand cmd = new GetFeedsCommand();
+			result = cmd.testFromFile(testFile);
+		}catch (Throwable ex){
+			Log.e(TAG, ex.getMessage(), ex);
+		}
+		return result;
 	}
 
 }

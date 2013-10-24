@@ -1,15 +1,20 @@
 package com.leggo.parsing;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.leggo.Article;
+import com.leggo.ArticleMap;
 import com.leggo.Feed;
+import com.leggo.FeedMap;
 
 public class GetArticlesCommand extends SimplectaCommand {
 
@@ -19,6 +24,14 @@ public class GetArticlesCommand extends SimplectaCommand {
 		super("all/");
 	}
 	
+	@Override
+	//just for testing 
+	public Connection getConnection() {
+		Connection conn = Jsoup.connect(getRootURL() + getPath());
+		return conn;
+	}
+	
+	
 	/**
 	 * returns a List<Article> object containing a list of articles obtained from the Web page  
 	 * @throws IOException 
@@ -26,6 +39,11 @@ public class GetArticlesCommand extends SimplectaCommand {
 	 */
 	@Override
 	public Object parseData() throws IOException {
+		Document doc = getConnection().get();
+		return parseData(doc);
+	}
+	
+	protected Object parseData(Document doc){
 		List<Article> result = new ArrayList<Article>();
 		
 		/*
@@ -40,24 +58,25 @@ public class GetArticlesCommand extends SimplectaCommand {
 		</div>
 		 */
 		
-		Document doc = getConnection().get();
+		
 		Elements itemElements = doc.select("div.item");
 		for (Element itemElem : itemElements){
 			
 			Element readElem = itemElem.select("a.read_link").first();
-			String title = readElem.val();
+			String title = readElem.text();
 			
 			Element peekElem = itemElem.select("a.peek").first();
 			String url = peekElem.attr("href");
 			
 			Element readButtonElem = itemElem.select("button.ajax_link").first();
-			String key = readButtonElem.attr("data_key");
+			String key = readButtonElem.attr("data-key");
 			String data_mark = readButtonElem.attr("data-mark");
 			boolean isRead = !data_mark.equalsIgnoreCase("read");
 			
 			Element feedElem = itemElem.select("a.feedlink").first();
 			String feedURL = feedElem.attr("href");
-			String feedName = feedElem.val();
+			feedURL = feedURL.substring(feedURL.indexOf("?")+1);
+			String feedName = feedElem.text();
 			
 			Article article = new Article();
 			article.setTitle(title);
@@ -65,13 +84,35 @@ public class GetArticlesCommand extends SimplectaCommand {
 			article.setURL(url);
 			article.setRead(isRead);
 			
-			Feed feed = new Feed();
-			feed.setName(feedName);
-			feed.setURL(feedURL);
+			ArticleMap.getInstance().put(article.getURL(), article);
+			
+			Feed feed = null; 
+			//do we already have feed?
+			if ( FeedMap.getInstance().containsKey(feedURL) )
+			{
+				feed = FeedMap.getInstance().get(feedURL);
+			}
+			else
+			{
+				//create feed and add to map
+				feed = new Feed();
+				feed.setName(feedName);
+				feed.setURL(feedURL);
+				FeedMap.getInstance().put(feed.getURL(), feed);
+			}
+			
 			article.setFeed(feed);
 			result.add(article);
 		}
 		
+		return result;
+	}
+	
+	public Object testFromFile(String filePath) throws IOException{
+		Object result = null;
+		File f = new File(filePath);
+		Document doc = Jsoup.parse(f, null);
+		result = parseData(doc);
 		return result;
 	}
 

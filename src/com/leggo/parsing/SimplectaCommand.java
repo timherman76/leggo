@@ -35,5 +35,8 @@ public abstract class SimplectaCommand implements WebCommand {
 	 */
 	@Override
 	public abstract Object parseData() throws IOException;
+	
+	
+	
 
 }
