@@ -1,6 +1,17 @@
 package com.leggo;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -17,6 +28,7 @@ import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,6 +36,8 @@ import android.widget.Toast;
 public class SettingsActivity extends PreferenceActivity {
 
 	private Context context;
+
+	public static final String TAG = "SettingsActivity";
 
 	private PreferenceManager prefManager;
 	private OnPreferenceChangeListener accountChangeListener;
@@ -38,6 +52,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private int id;
 
 	private String auth_token;
+	private String cookie;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -210,14 +225,16 @@ public class SettingsActivity extends PreferenceActivity {
 				if (i == null) {
 					// User input not required, we have permission. Set
 					// preference to the account.
-					Toast.makeText(
-							context,
-							"DEBUG: Already Have Permission", Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, "DEBUG: Already Have Permission",
+							Toast.LENGTH_SHORT).show();
 					ListPreference accountPref = (ListPreference) prefManager
 							.findPreference(ACCOUNT_SELECTION);
 					accountPref.setValue(accountName);
 					accountSelectionPref.setSummary("Logged in as: "
 							+ accountName);
+
+					// Get and set cookie into preferences
+					getCookie(auth_token);
 
 				} else {
 					// Send permission prompt intent.
@@ -272,6 +289,15 @@ public class SettingsActivity extends PreferenceActivity {
 				idRequests[requestCode] = null;
 				Toast.makeText(context, "Account Access Granted",
 						Toast.LENGTH_SHORT).show();
+
+				// Get and set cookie into preferences
+				getCookie(auth_token);
+				SharedPreferences prefs = context.getSharedPreferences(
+						SettingsActivity.ACCOUNT_PREFERENCE_NAME,
+						Context.MODE_PRIVATE);
+				SharedPreferences.Editor editor = prefs.edit();
+				editor.putString("cookie", cookie);
+				editor.commit();
 			}
 			// User denies permission
 			else if (resultCode == RESULT_CANCELED) {
@@ -286,5 +312,60 @@ public class SettingsActivity extends PreferenceActivity {
 			}
 		}
 
+	}
+
+	private void getCookie(final String authToken) {
+		new Thread(new Runnable() {
+			public void run() {
+				String href = "https://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth="
+						+ authToken;
+				
+				
+				DefaultHttpClient httpclient = new DefaultHttpClient();
+				final HttpParams params = new BasicHttpParams();
+				
+				// Don't follow redirects
+				HttpClientParams.setRedirecting(params, false);
+				httpclient.setParams(params);
+				HttpGet httpget = new HttpGet(href);
+				try {
+					HttpResponse response = httpclient.execute(httpget);
+					HttpEntity entity = response.getEntity();
+					if (entity != null) {
+						entity.consumeContent();
+					}
+					// Get all the cookies
+					List<Cookie> cookies = httpclient.getCookieStore()
+							.getCookies();
+					if (cookies.isEmpty()) {
+						Log.d(TAG, "No Cookies");
+					} else {
+						// Search for the SACSID cookie and store it
+						for (int i = 0; i < cookies.size(); i++) {
+							Cookie c = cookies.get(i);
+							if (c.getName().contentEquals("SACSID")) {
+								Log.d(TAG, "SACSID Found");
+								cookie = c.getValue();
+								Log.d(TAG, "Cookie set to: " + cookie);
+								SharedPreferences prefs = context
+										.getSharedPreferences(
+												SettingsActivity.ACCOUNT_PREFERENCE_NAME,
+												Context.MODE_PRIVATE);
+								SharedPreferences.Editor editor = prefs.edit();
+								editor.putString("cookie", cookie);
+								editor.commit();
+							}
+						}
+					}
+				} catch (ClientProtocolException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}).start();
 	}
 }
