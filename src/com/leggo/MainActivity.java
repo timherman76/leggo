@@ -37,8 +37,12 @@ public class MainActivity extends Activity {
 		context = this;
 
 		prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		new Thread() {
+			public void run() {
+				testGetArticlesURL();
+			}
+		}.start();
 
-		testGetFeeds();
 	}
 
 	@Override
@@ -153,5 +157,19 @@ public class MainActivity extends Activity {
 		}
 		return result;
 	}
+	
+	public Object testGetArticlesURL() {
+		Object result = null;
+		try {
+			GetArticlesCommand cmd = new GetArticlesCommand();
+			String c = prefs.getString("cookie", "default");
+			result = cmd.parseData(c);
+			Log.d(TAG, "LOL" + result);
+		} catch (Throwable ex) {
+			Log.e(TAG, ex.getMessage(), ex);
+		}
+		return result;
+	}
+
 
 }

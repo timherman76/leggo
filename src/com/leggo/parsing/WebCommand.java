@@ -9,6 +9,6 @@ public interface WebCommand {
         String getRootURL();
         String getPath();
         Connection getConnection();
-        Object parseData() throws IOException;
+        Object parseData(String cookie) throws IOException;
         
 }

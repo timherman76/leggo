@@ -10,6 +10,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.util.Log;
+
 import com.leggo.Feed;
 import com.leggo.FeedMap;
 
@@ -26,8 +28,14 @@ public class GetFeedsCommand extends SimplectaCommand {
 	 * @throws IOException 
 	 *
 	 */
-	public Object parseData() throws IOException {
-		Document doc = getConnection().get();
+	public Object parseData(String cookie) throws IOException {
+		Document doc = Jsoup.connect(getRootURL() + getPath())
+				.timeout(300000)
+				.cookie("ACSID",cookie)
+				.post()
+				;
+		Log.d("COOKIE", "Cookie:" + cookie);
+		Log.d("HTML", "HTML:" + doc);
 		return parseData(doc);
 	}
 	

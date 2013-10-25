@@ -73,8 +73,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// This listener checks whether the user selects another account
 		accountChangeListener = new OnPreferenceChangeListener() {
-			public boolean onPreferenceChange(Preference preference,
-					Object newValue) {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				// Only listen on the account selection preference
 				if (preference.getKey().equals(ACCOUNT_SELECTION)) {
 					// Set accountName a newValue
@@ -82,28 +81,22 @@ public class SettingsActivity extends PreferenceActivity {
 
 					// If there is no account name, set to no account
 					if (accountName.equals(NO_ACCOUNT_NAME)) {
-						ListPreference accountPref = (ListPreference) prefManager
-								.findPreference(ACCOUNT_SELECTION);
+						ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 						accountPref.setValue(NO_ACCOUNT_NAME);
-						accountSelectionPref.setSummary("Logged in as: "
-								+ NO_ACCOUNT_NAME);
+						accountSelectionPref.setSummary("Logged in as: " + NO_ACCOUNT_NAME);
 
 						return true;
 					}
 
 					// Store accounts into array
-					AccountManager accountManager = AccountManager
-							.get(getApplicationContext());
-					Account[] accounts = accountManager
-							.getAccountsByType("com.google");
+					AccountManager accountManager = AccountManager.get(getApplicationContext());
+					Account[] accounts = accountManager.getAccountsByType("com.google");
 
 					// Find index where account is and then try to get token
 					int accountIndex = 0;
 					for (Account account : accounts) {
 						if (account.name.equals(accountName)) {
-							accountManager.getAuthToken(accounts[accountIndex],
-									"ah", true, new GetAuthTokenCallBack(
-											accountName), null);
+							accountManager.getAuthToken(accounts[accountIndex], "ah", true, new GetAuthTokenCallBack(accountName), null);
 
 							return false;
 						}
@@ -116,24 +109,18 @@ public class SettingsActivity extends PreferenceActivity {
 		};
 
 		// Set the listener the detects change on the account preferences
-		ListPreference accountPref = (ListPreference) prefManager
-				.findPreference(ACCOUNT_SELECTION);
+		ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 		accountPref.setOnPreferenceChangeListener(accountChangeListener);
 
 		Preference add_account_button = (Preference) findPreference("add_account");
-		add_account_button
-				.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference arg0) {
-						AccountManager accountManager = AccountManager
-								.get(getApplicationContext());
-						accountManager
-								.addAccount("com.google", "ah", null,
-										new Bundle(), SettingsActivity.this,
-										null, null);
-						return true;
-					}
-				});
+		add_account_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				AccountManager accountManager = AccountManager.get(getApplicationContext());
+				accountManager.addAccount("com.google", "ah", null, new Bundle(), SettingsActivity.this, null, null);
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -161,21 +148,17 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		SharedPreferences prefs = context.getSharedPreferences(
-				SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
-		accountSelectionPref.setSummary("Logged in as: "
-				+ prefs.getString("account_selection", "default"));
+		SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		accountSelectionPref.setSummary("Logged in as: " + prefs.getString("account_selection", "default"));
 
 		getAccountEntries();
 	}
 
 	private void getAccountEntries() {
-		ListPreference accountPref = (ListPreference) prefManager
-				.findPreference(ACCOUNT_SELECTION);
+		ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 		if (accountPref != null) {
 			// Fetch google accounts
-			AccountManager accountManager = AccountManager
-					.get(getApplicationContext());
+			AccountManager accountManager = AccountManager.get(getApplicationContext());
 			Account[] accounts = accountManager.getAccountsByType("com.google");
 
 			// Increase size of account list array by 1 since there is a 'none'
@@ -199,8 +182,7 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 
 	// Access token callback
-	private class GetAuthTokenCallBack implements
-			AccountManagerCallback<Bundle> {
+	private class GetAuthTokenCallBack implements AccountManagerCallback<Bundle> {
 		String accountName;
 
 		public GetAuthTokenCallBack(String name) {
@@ -215,9 +197,7 @@ public class SettingsActivity extends PreferenceActivity {
 				Intent i = (Intent) bundle.get(AccountManager.KEY_INTENT);
 				auth_token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
 
-				SharedPreferences prefs = context.getSharedPreferences(
-						SettingsActivity.ACCOUNT_PREFERENCE_NAME,
-						Context.MODE_PRIVATE);
+				SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
 				SharedPreferences.Editor editor = prefs.edit();
 				editor.putString("token", auth_token);
 				editor.commit();
@@ -225,13 +205,10 @@ public class SettingsActivity extends PreferenceActivity {
 				if (i == null) {
 					// User input not required, we have permission. Set
 					// preference to the account.
-					Toast.makeText(context, "DEBUG: Already Have Permission",
-							Toast.LENGTH_SHORT).show();
-					ListPreference accountPref = (ListPreference) prefManager
-							.findPreference(ACCOUNT_SELECTION);
+					Toast.makeText(context, "DEBUG: Already Have Permission", Toast.LENGTH_SHORT).show();
+					ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 					accountPref.setValue(accountName);
-					accountSelectionPref.setSummary("Logged in as: "
-							+ accountName);
+					accountSelectionPref.setSummary("Logged in as: " + accountName);
 
 					// Get and set cookie into preferences
 					getCookie(auth_token);
@@ -244,9 +221,7 @@ public class SettingsActivity extends PreferenceActivity {
 					flags &= ~Intent.FLAG_ACTIVITY_NEW_TASK;
 					i.setFlags(flags);
 
-					Toast.makeText(context,
-							"DEBUG: Do Not Have Permission, Requesting It",
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, "DEBUG: Do Not Have Permission, Requesting It", Toast.LENGTH_SHORT).show();
 					idRequests[id] = accountName;
 
 					// StartActvitityForResult has a second parameter
@@ -258,14 +233,11 @@ public class SettingsActivity extends PreferenceActivity {
 				}
 
 			} catch (OperationCanceledException e) {
-				Toast.makeText(context, "Operation Canceled Exception",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "Operation Canceled Exception", Toast.LENGTH_SHORT).show();
 			} catch (AuthenticatorException e) {
-				Toast.makeText(context, "Authenticator Exception",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "Authenticator Exception", Toast.LENGTH_SHORT).show();
 			} catch (IOException e) {
-				Toast.makeText(context, "IO Exception", Toast.LENGTH_SHORT)
-						.show();
+				Toast.makeText(context, "IO Exception", Toast.LENGTH_SHORT).show();
 			}
 		}
 	};
@@ -282,33 +254,31 @@ public class SettingsActivity extends PreferenceActivity {
 			String accountName = idRequests[requestCode];
 			if (accountName != null) {
 				// Set preference to this new account
-				ListPreference accountPref = (ListPreference) prefManager
-						.findPreference(ACCOUNT_SELECTION);
+				ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 				accountPref.setValue(accountName);
 				accountSelectionPref.setSummary("Logged in as: " + accountName);
 				idRequests[requestCode] = null;
-				Toast.makeText(context, "Account Access Granted",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "Account Access Granted", Toast.LENGTH_SHORT).show();
 
 				// Get and set cookie into preferences
-				getCookie(auth_token);
-				SharedPreferences prefs = context.getSharedPreferences(
-						SettingsActivity.ACCOUNT_PREFERENCE_NAME,
-						Context.MODE_PRIVATE);
-				SharedPreferences.Editor editor = prefs.edit();
-				editor.putString("cookie", cookie);
-				editor.commit();
+				// Find index where account is and then try to get token
+				AccountManager accountManager = AccountManager.get(getApplicationContext());
+				Account[] accounts = accountManager.getAccountsByType("com.google");
+				int accountIndex = 0;
+				for (Account account : accounts) {
+					if (account.name.equals(accountName)) {
+						accountManager.getAuthToken(accounts[accountIndex], "ah", true, new GetAuthTokenCallBack(accountName), null);
+					}
+					accountIndex++;
+				}
 			}
 			// User denies permission
 			else if (resultCode == RESULT_CANCELED) {
 				// Set preference to 'None' account
-				ListPreference accountPref = (ListPreference) prefManager
-						.findPreference(ACCOUNT_SELECTION);
+				ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 				accountPref.setValue(NO_ACCOUNT_NAME);
-				accountSelectionPref.setSummary("Logged in as: "
-						+ NO_ACCOUNT_NAME);
-				Toast.makeText(context, "Account Access Denied",
-						Toast.LENGTH_SHORT).show();
+				accountSelectionPref.setSummary("Logged in as: " + NO_ACCOUNT_NAME);
+				Toast.makeText(context, "Account Access Denied", Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -317,13 +287,11 @@ public class SettingsActivity extends PreferenceActivity {
 	private void getCookie(final String authToken) {
 		new Thread(new Runnable() {
 			public void run() {
-				String href = "https://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth="
-						+ authToken;
-				
-				
+				String href = "http://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth=" + authToken;
+
 				DefaultHttpClient httpclient = new DefaultHttpClient();
 				final HttpParams params = new BasicHttpParams();
-				
+
 				// Don't follow redirects
 				HttpClientParams.setRedirecting(params, false);
 				httpclient.setParams(params);
@@ -335,22 +303,18 @@ public class SettingsActivity extends PreferenceActivity {
 						entity.consumeContent();
 					}
 					// Get all the cookies
-					List<Cookie> cookies = httpclient.getCookieStore()
-							.getCookies();
+					List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 					if (cookies.isEmpty()) {
 						Log.d(TAG, "No Cookies");
 					} else {
 						// Search for the SACSID cookie and store it
 						for (int i = 0; i < cookies.size(); i++) {
 							Cookie c = cookies.get(i);
-							if (c.getName().contentEquals("SACSID")) {
-								Log.d(TAG, "SACSID Found");
+							if (c.getName().contentEquals("ACSID")) {
+								Log.d(TAG, "ACSID Found");
 								cookie = c.getValue();
 								Log.d(TAG, "Cookie set to: " + cookie);
-								SharedPreferences prefs = context
-										.getSharedPreferences(
-												SettingsActivity.ACCOUNT_PREFERENCE_NAME,
-												Context.MODE_PRIVATE);
+								SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
 								SharedPreferences.Editor editor = prefs.edit();
 								editor.putString("cookie", cookie);
 								editor.commit();

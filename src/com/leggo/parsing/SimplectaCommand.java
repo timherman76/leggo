@@ -9,11 +9,11 @@ public abstract class SimplectaCommand implements WebCommand {
 
 	protected String rootURL = "http://www.simplecta.com/";
 	protected String path;
-	
-	public SimplectaCommand(String path){
+
+	public SimplectaCommand(String path) {
 		this.path = path;
 	}
-	
+
 	@Override
 	public String getRootURL() {
 		return rootURL;
@@ -34,9 +34,6 @@ public abstract class SimplectaCommand implements WebCommand {
 	 *
 	 */
 	@Override
-	public abstract Object parseData() throws IOException;
-	
-	
-	
+	public abstract Object parseData(String cookie) throws IOException;
 
 }
