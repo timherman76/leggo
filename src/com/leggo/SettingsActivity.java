@@ -47,10 +47,9 @@ public class SettingsActivity extends PreferenceActivity {
 	
 	private ListPreference accountSelectionPref;
 
-	public final static String ACCOUNT_PREFERENCE_NAME = "account_select_pref";
-	public final static String ACCOUNT_SELECTION = "account_selection";
-	public final static String NO_ACCOUNT_NAME = "None";
-	public final static String APP_AUTH_URL = "http://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth=";
+	private String ACCOUNT_SELECTION = "account_selection";
+	private String NO_ACCOUNT_NAME = "None";
+	private String APP_AUTH_URL = "http://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth=";
 
 	private String[] idRequests;
 	private int id;
@@ -66,11 +65,10 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// Create shared preference and set the name
 		prefManager = getPreferenceManager();
-		prefManager.setSharedPreferencesName(ACCOUNT_PREFERENCE_NAME);
 
 		addPreferencesFromResource(R.layout.activity_settings);
 		
-		prefs = context.getSharedPreferences(ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		editor = prefs.edit();
 		
 		accountSelectionPref = (ListPreference) findPreference("account_selection");

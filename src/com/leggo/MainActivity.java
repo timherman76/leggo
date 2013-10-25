@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,10 +25,12 @@ import com.leggo.parsing.GetFeedsCommand;
 public class MainActivity extends Activity {
 
 	public static final String TAG = "MainActivity";
+	
 	private Context context;
-	private String currentAccountName;
 
 	private SharedPreferences prefs;
+	
+	private String currentAccountName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +39,7 @@ public class MainActivity extends Activity {
 
 		context = this;
 
-		prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		new Thread() {
 			public void run() {
 				testGetRemoteArticles();
