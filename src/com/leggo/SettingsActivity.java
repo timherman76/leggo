@@ -41,12 +41,16 @@ public class SettingsActivity extends PreferenceActivity {
 
 	private PreferenceManager prefManager;
 	private OnPreferenceChangeListener accountChangeListener;
-
+	
+	private SharedPreferences prefs;
+	private SharedPreferences.Editor editor;
+	
 	private ListPreference accountSelectionPref;
 
 	public final static String ACCOUNT_PREFERENCE_NAME = "account_select_pref";
 	public final static String ACCOUNT_SELECTION = "account_selection";
 	public final static String NO_ACCOUNT_NAME = "None";
+	public final static String APP_AUTH_URL = "http://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth=";
 
 	private String[] idRequests;
 	private int id;
@@ -57,17 +61,20 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		context = this;
 
 		// Create shared preference and set the name
 		prefManager = getPreferenceManager();
 		prefManager.setSharedPreferencesName(ACCOUNT_PREFERENCE_NAME);
 
 		addPreferencesFromResource(R.layout.activity_settings);
-
+		
+		prefs = context.getSharedPreferences(ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		editor = prefs.edit();
+		
 		accountSelectionPref = (ListPreference) findPreference("account_selection");
-
-		context = this;
-
+		
 		id = 0;
 		idRequests = new String[10];
 
@@ -148,7 +155,6 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
 		accountSelectionPref.setSummary("Logged in as: " + prefs.getString("account_selection", "default"));
 
 		getAccountEntries();
@@ -197,8 +203,6 @@ public class SettingsActivity extends PreferenceActivity {
 				Intent i = (Intent) bundle.get(AccountManager.KEY_INTENT);
 				auth_token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
 
-				SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
-				SharedPreferences.Editor editor = prefs.edit();
 				editor.putString("token", auth_token);
 				editor.commit();
 
@@ -287,7 +291,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private void getCookie(final String authToken) {
 		new Thread(new Runnable() {
 			public void run() {
-				String href = "http://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth=" + authToken;
+				String href = APP_AUTH_URL + authToken;
 
 				DefaultHttpClient httpclient = new DefaultHttpClient();
 				final HttpParams params = new BasicHttpParams();
@@ -314,18 +318,14 @@ public class SettingsActivity extends PreferenceActivity {
 								Log.d(TAG, "ACSID Found");
 								cookie = c.getValue();
 								Log.d(TAG, "Cookie set to: " + cookie);
-								SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
-								SharedPreferences.Editor editor = prefs.edit();
 								editor.putString("cookie", cookie);
 								editor.commit();
 							}
 						}
 					}
 				} catch (ClientProtocolException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 

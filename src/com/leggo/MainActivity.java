@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
 		prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
 		new Thread() {
 			public void run() {
-				testGetArticlesURL();
+				testGetRemoteArticles();
 			}
 		}.start();
 
@@ -85,11 +85,11 @@ public class MainActivity extends Activity {
 				AccountManager accountManager = AccountManager.get(getApplicationContext());
 				Account[] accounts = accountManager.getAccountsByType("com.google");
 
-				// Find index where account is and then try to get token
+				// Find index where account is
 				int accountIndex = 0;
 				for (Account account : accounts) {
 					if (account.name.equals(currentAccountName)) {
-						// Get cookie here.
+						// Things seem to be okay.
 						String auth_token = prefs.getString("token", "default");
 						String cookie = prefs.getString("cookie", "default");
 						Toast.makeText(context, "AuthToken:" + auth_token, Toast.LENGTH_SHORT).show();
@@ -157,19 +157,18 @@ public class MainActivity extends Activity {
 		}
 		return result;
 	}
-	
-	public Object testGetArticlesURL() {
+
+	public Object testGetRemoteArticles() {
 		Object result = null;
 		try {
 			GetArticlesCommand cmd = new GetArticlesCommand();
 			String c = prefs.getString("cookie", "default");
 			result = cmd.parseData(c);
-			Log.d(TAG, "LOL" + result);
+			Log.d(TAG, "RESULT:" + result);
 		} catch (Throwable ex) {
 			Log.e(TAG, ex.getMessage(), ex);
 		}
 		return result;
 	}
-
 
 }
