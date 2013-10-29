@@ -1,8 +1,12 @@
 package com.leggo;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import com.leggo.Article.ArticleSearchResult;
 import com.leggo.parsing.GetArticlesCommand;
 
 import android.net.ConnectivityManager;
@@ -15,18 +19,25 @@ import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-
 public class MainActivity extends Activity {
 
 	private Context context;
@@ -38,6 +49,10 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		loadArticles();
+		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+		Date now = new Date();
+		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
+		refreshBar.setText(df.format(now).toString());
 		context = this;
 
 	}
@@ -61,6 +76,87 @@ public class MainActivity extends Activity {
 		case R.id.action_manage:
 			i = new Intent(this, ManageActivity.class);
 			startActivity(i);
+			break;
+		case R.id.action_search:
+			ActionBar actionBar = getActionBar();
+			//actionBar.hide();
+			actionBar.setCustomView(R.layout.searchbar);
+			EditText search = (EditText) actionBar.getCustomView().findViewById(R.id.action_searchfield);
+			search.setOnEditorActionListener(new OnEditorActionListener() {
+
+			      @Override
+			      public boolean onEditorAction(TextView v, int actionId,
+			          KeyEvent event) {
+			    	  Article searcher = new Article();
+			    	  List<ArticleSearchResult> results = searcher.search(v.getText().toString(),articles);
+			    	  Log.d("LOLOL", v.getText().toString());
+						LinearLayout linearLayout = (LinearLayout)findViewById(R.id.article_list);
+						if(((LinearLayout) linearLayout).getChildCount() > 0) 
+						    ((LinearLayout) linearLayout).removeAllViews();
+  			    	  LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                              LayoutParams.MATCH_PARENT,
+                              LayoutParams.WRAP_CONTENT, 0.10f);
+                      LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
+                              LayoutParams.MATCH_PARENT,
+                              LayoutParams.WRAP_CONTENT, 0.90f);
+			    	  for(int i = 0; i < 2*results.size(); i+=2)
+			    	  {
+			    		  LinearLayout articleScroll = (LinearLayout)findViewById(R.id.article_list);
+			    		  LinearLayout currArticle = new LinearLayout(getBaseContext());
+	                        currArticle.setOrientation(LinearLayout.HORIZONTAL);
+	                        currArticle.setPadding(5, 5, 5, 5);
+	                        Button articleName = new Button(getBaseContext());
+	                        articleName.setId(i);
+	                        articleName.setText((CharSequence)(results.get(i/2).article.getTitle()));
+	                        articleName.setTextColor(Color.parseColor("#000000"));
+	                        articleName.setGravity(Gravity.LEFT);
+	                        articleName.setBackground(getBaseContext().getResources().getDrawable(R.drawable.textlines));
+	                        articleName.setOnClickListener(new View.OnClickListener() {
+	                        	public void onClick(View v) {
+	                        		int id = v.getId();
+	                        		if(id%2 == 0);
+	                        			//replace with call for view;         
+	                        	}
+	                        });
+	                        articleName.setLayoutParams(param);
+	                        ImageButton peek = new ImageButton(getBaseContext());
+	                        peek.setId(i+1);
+	                        peek.setBackground(getBaseContext().getResources().getDrawable(R.drawable.ic_read));
+	                        peek.setOnClickListener(new View.OnClickListener() {
+						        public void onClick(View v) {
+						                 int id = v.getId();
+						                 if(id%2 == 1);
+						                       //replace with call for peek         
+						        }
+					        });
+	                        peek.setLayoutParams(param2);
+	                        currArticle.addView(articleName);
+	                        currArticle.addView(peek);
+	                        articleScroll.addView(currArticle);
+			    		  
+			    	  }
+			    	  ActionBar actionBar = getActionBar();
+			    	  actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+						        | ActionBar.DISPLAY_SHOW_HOME);
+			        return false;
+			      }
+			    });
+			    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
+			        | ActionBar.DISPLAY_SHOW_HOME);
+			//actionBar.show();
+			
+			break;
+		case R.id.action_refresh:
+			LinearLayout linearLayout = (LinearLayout)findViewById(R.id.article_list);
+			if(((LinearLayout) linearLayout).getChildCount() > 0) 
+			    ((LinearLayout) linearLayout).removeAllViews();
+			GetArticlesCommand refresh = new GetArticlesCommand();
+			GetArticles get = new GetArticles();
+			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+			get.execute(refresh);
+			Date now = new Date();
+			TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
+			refreshBar.setText(df.format(now).toString());
 			break;
 		}
 		return true;
@@ -136,14 +232,25 @@ public class MainActivity extends Activity {
 		if(articles != null)
         {
         	Log.d("ARTICLES", "Here " + articles.size());
-                LinearLayout feedScroll = (LinearLayout)findViewById(R.id.article_list);
+            LinearLayout articleScroll = (LinearLayout)findViewById(R.id.article_list);
+	    	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                      LayoutParams.MATCH_PARENT,
+                      LayoutParams.WRAP_CONTENT, 0.10f);
+            LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
+                      LayoutParams.MATCH_PARENT,
+                      LayoutParams.WRAP_CONTENT, 0.90f);
                 for(int i = 0; i < 2*articles.size(); i += 2)
                 {
                         LinearLayout currArticle = new LinearLayout(this);
                         currArticle.setOrientation(LinearLayout.HORIZONTAL);
+                        currArticle.setPadding(100000, 100000, 100000, 100000);
+                        currArticle.setBackground(this.getResources().getDrawable(R.drawable.box));
                         Button articleName = new Button(this);
                         articleName.setId(i);
                         articleName.setText((CharSequence)(articles.get(i/2).getTitle()));
+                        articleName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
+                        articleName.setTextColor(Color.parseColor("#000000"));
+                        articleName.setGravity(Gravity.LEFT);
                         articleName.setOnClickListener(new View.OnClickListener() {
                         	public void onClick(View v) {
                         		int id = v.getId();
@@ -151,9 +258,10 @@ public class MainActivity extends Activity {
                         			//replace with call for view;         
                         	}
                         });
-                        Button peek = new Button(this);
+                        articleName.setLayoutParams(param);
+                        ImageButton peek = new ImageButton(this);
                         peek.setId(i+1);
-                        peek.setText("peek");
+                        peek.setBackground(getBaseContext().getResources().getDrawable(R.drawable.ic_read));
                         peek.setOnClickListener(new View.OnClickListener() {
 					        public void onClick(View v) {
 					                 int id = v.getId();
@@ -161,9 +269,10 @@ public class MainActivity extends Activity {
 					                       //replace with call for peek         
 					        }
 				        });
+                        peek.setLayoutParams(param2);
                         currArticle.addView(articleName);
                         currArticle.addView(peek);
-                        feedScroll.addView(currArticle);
+                        articleScroll.addView(currArticle);
                 }
         }
 	}
