@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
     
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:paddingRight="5dp"
+        android:id="@+id/main_refresh_bar"
+    
+    />
     
    <TextView
        android:layout_width="wrap_content"
@@ -13,8 +21,7 @@
        android:layout_gravity="center"
        android:text="@string/articles_header"
        android:textSize="20sp"
-       android:textStyle="bold"
-       android:paddingTop="10dp" />
+       android:textStyle="bold" />
     
     <ScrollView
        android:id="@+id/article_scroll"
