@@ -161,48 +161,16 @@ public class MainActivity extends Activity {
 		}
 		return true;
 	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-
-		if (networkAvailability() == false) {
-			noNetworkAlert();
-		}
-		SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.ACCOUNT_PREFERENCE_NAME, Context.MODE_PRIVATE);
-		currentAccountName = prefs.getString("account_selection", "default");
-		Toast.makeText(context, "Currently logged in to " + currentAccountName, Toast.LENGTH_SHORT).show();
-
-		if (currentAccountName.equals("None") || currentAccountName.equals("default")) {
-			noAccountAlert();
-		} else {
-			AccountManager accountManager = AccountManager.get(getApplicationContext());
-			Account[] accounts = accountManager.getAccountsByType("com.google");
-
-			// Find index where account is and then try to get token
-			int accountIndex = 0;
-			for (Account account : accounts) {
-				if (account.name.equals(currentAccountName)) {
-					// get cookie here
-				}
-				accountIndex++;
-			}
-
-			if (accountIndex < accounts.length) {
-				// Account doesn't exist anymore for some reason.
-			}
-		}
-	}
 	
 	private void loadArticles()
-    {
-    	if(networkAvailability()) //until login is taken care of
-        {
-    		GetArticles get = new GetArticles();
-    		GetArticlesCommand command = new GetArticlesCommand();
-    		get.execute(command);
-        }
-     }  
+    	{
+    		if(networkAvailability()) //until login is taken care of
+		{
+    			GetArticles get = new GetArticles();
+    			GetArticlesCommand command = new GetArticlesCommand();
+    			get.execute(command);
+        	}
+     	}  
 
 	private boolean networkAvailability() {
 		ConnectivityManager CM = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
