@@ -1,16 +1,11 @@
 package com.leggo;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
 import com.leggo.Article.ArticleSearchResult;
 import com.leggo.parsing.GetArticlesCommand;
-import com.leggo.parsing.GetFeedsCommand;
-
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -59,11 +54,6 @@ public class MainActivity extends Activity {
         context = this;
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        new Thread() {
-                public void run() {
-                        testGetRemoteArticles();
-                }
-        }.start();
 		loadArticles();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
@@ -201,8 +191,6 @@ public class MainActivity extends Activity {
                                      // Things seem to be okay.
                                      String auth_token = prefs.getString("token", "default");
                                      String cookie = prefs.getString("cookie", "default");
-                                     Toast.makeText(context, "AuthToken:" + auth_token, Toast.LENGTH_SHORT).show();
-                                     Toast.makeText(context, "Cookie:" + cookie, Toast.LENGTH_SHORT).show();
                              }
                              accountIndex++;
                      }
@@ -298,46 +286,6 @@ public class MainActivity extends Activity {
         }
 	}
 	
-   public Object testGetArticles() {
-        Object result = null;
-        try {
-                File dir = this.getFilesDir();
-                String fileName = "simplecta_all.htm";
-                String testFile = new File(dir + File.separator + fileName).getAbsolutePath();
-                GetArticlesCommand cmd = new GetArticlesCommand();
-                result = cmd.testFromFile(testFile);
-        } catch (Throwable ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-        }
-        return result;
-    }
-    
-    public Object testGetFeeds() {
-        Object result = null;
-        try {
-                File dir = this.getFilesDir();
-                String fileName = "simplecta_feeds.htm";
-                String testFile = new File(dir + File.separator + fileName).getAbsolutePath();
-                GetFeedsCommand cmd = new GetFeedsCommand();
-                result = cmd.testFromFile(testFile);
-        } catch (Throwable ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-        }
-        return result;
-    }
-    
-    public Object testGetRemoteArticles() {
-        Object result = null;
-        try {
-                GetArticlesCommand cmd = new GetArticlesCommand();
-                String c = prefs.getString("cookie", "default");
-                result = cmd.parseData(c);
-                Log.d(TAG, "RESULT:" + result);
-        } catch (Throwable ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-        }
-        return result;
-    }
 	
 	protected class GetArticles extends AsyncTask<GetArticlesCommand, Integer, List<Article>> {
 		@Override
