@@ -39,6 +39,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.leggo.Feed;
 import com.leggo.Feed.FeedSearchResult;
+import com.leggo.parsing.AddFeedCommand;
 import com.leggo.parsing.GetFeedsCommand;
 
 public class ManageActivity extends Activity {
@@ -48,12 +49,14 @@ public class ManageActivity extends Activity {
 	private File sdCard = Environment.getExternalStorageDirectory();
 	public static File filesDir;
 	private SharedPreferences prefs;
+	public static boolean isAdded;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_manage);
-		prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.context);
+		prefs = PreferenceManager
+				.getDefaultSharedPreferences(MainActivity.context);
 		filesDir = new File(sdCard + "/Android/data/com.leggo/files");
 		filesDir.mkdirs();
 		loadFeeds();
@@ -103,24 +106,39 @@ public class ManageActivity extends Activity {
 			warning.show();
 			return;
 		}
-		String addlink = "http://simplecta.com/";
+		String addlink;
 		if (atom) {
 			try {
-				addlink += ("addAtom/" + URLEncoder.encode(text, "UTF-8"));
+				addlink = ("addAtom/?url=" + URLEncoder.encode(text, "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				return;
 			}
 		} else {
 			try {
-				addlink += ("addRSS/" + URLEncoder.encode(text, "UTF-8"));
+				addlink = ("addRSS/?url=" + URLEncoder.encode(text, "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				return;
 			}
 		}
 		if (networkAvailability()) {
-			// execute an AddFeed simplecta command
+			AddFeedCommand addMe = new AddFeedCommand(addlink);
+			AddFeed get = new AddFeed();
+			get.execute(addMe);
+			
+			if(!isAdded){
+				Toast failure = Toast.makeText(this,
+						"This link is invalid. Please try again.",
+						Toast.LENGTH_SHORT);
+				failure.show();
+			} else {
+				GetFeedsCommand getFeeds = new GetFeedsCommand();
+				GetFeeds listFeeds = new GetFeeds();
+				listFeeds.execute(getFeeds);
+			}
+			
+			
 			loadFeeds();
 		} else {
 			Toast warning = Toast.makeText(this,
@@ -157,6 +175,9 @@ public class ManageActivity extends Activity {
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
 			LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.90f);
+			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
+			if (((LinearLayout) linearLayout).getChildCount() > 0)
+				((LinearLayout) linearLayout).removeAllViews();
 			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
 				LinearLayout currFeed = new LinearLayout(this);
 				currFeed.setOrientation(LinearLayout.HORIZONTAL);
@@ -326,6 +347,7 @@ public class ManageActivity extends Activity {
 	protected class GetFeeds extends
 			AsyncTask<GetFeedsCommand, Integer, List<Feed>> {
 
+		@SuppressWarnings("unchecked")
 		@Override
 		protected List<Feed> doInBackground(GetFeedsCommand... params) {
 			GetFeedsCommand get = params[0];
@@ -347,6 +369,29 @@ public class ManageActivity extends Activity {
 			ManageActivity.allFeeds = result;
 			listFeeds();
 
+		}
+	}
+
+	protected class AddFeed extends
+			AsyncTask<AddFeedCommand, Integer, Boolean> {
+
+		@Override
+		protected Boolean doInBackground(AddFeedCommand... params) {
+			AddFeedCommand get = params[0];
+			Boolean success = false;
+			try {
+				String c = prefs.getString("cookie", "default");
+				success = (Boolean) get.parseData(c);
+			} catch (IOException e) {
+				Log.e("FEEDS", "IOException caught", e);
+				return false;
+			}
+			return success;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean success) {
+			ManageActivity.isAdded = (boolean) success;
 		}
 	}
 }
