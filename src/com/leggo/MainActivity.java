@@ -263,8 +263,13 @@ public class MainActivity extends Activity {
                         articleName.setOnClickListener(new View.OnClickListener() {
                         	public void onClick(View v) {
                         		int id = v.getId();
-                        		if(id%2 == 0);
-                        			//replace with call for view;         
+                        		if(id%2 == 0){
+                        			WebView webview = new WebView(getBaseContext());
+						setContentView(webview);
+							
+						webview.loadUrl(articles.get(id/2).getURL());
+                        		}
+						}         
                         	}
                         });
                         articleName.setLayoutParams(param);
