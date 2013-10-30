@@ -1,5 +1,6 @@
 package com.leggo;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import com.leggo.Article.ArticleSearchResult;
 import com.leggo.parsing.GetArticlesCommand;
+import com.leggo.parsing.GetFeedsCommand;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -40,20 +42,33 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 public class MainActivity extends Activity {
 
-	private Context context;
-	private String currentAccountName;
-	public static List<Article> articles = null;
+	public static final String TAG = "MainActivity";
+    
+    private Context context;
+
+    private SharedPreferences prefs;
+    
+    private String currentAccountName;
+    List<Article> articles;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        context = this;
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        new Thread() {
+                public void run() {
+                        testGetRemoteArticles();
+                }
+        }.start();
 		loadArticles();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
 		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
 		refreshBar.setText(df.format(now).toString());
-		context = this;
 
 	}
 
@@ -161,16 +176,54 @@ public class MainActivity extends Activity {
 		}
 		return true;
 	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		if (networkAvailability() == false) {
+			noNetworkAlert();
+		}
+		 else {
+             currentAccountName = prefs.getString("account_selection", "default");
+             Toast.makeText(context, "Currently logged in to " + currentAccountName, Toast.LENGTH_SHORT).show();
+
+             if (currentAccountName.equals("None") || currentAccountName.equals("default")) {
+                     noAccountAlert();
+             } else {
+                     AccountManager accountManager = AccountManager.get(getApplicationContext());
+                     Account[] accounts = accountManager.getAccountsByType("com.google");
+
+                     // Find index where account is
+                     int accountIndex = 0;
+                     for (Account account : accounts) {
+                             if (account.name.equals(currentAccountName)) {
+                                     // Things seem to be okay.
+                                     String auth_token = prefs.getString("token", "default");
+                                     String cookie = prefs.getString("cookie", "default");
+                                     Toast.makeText(context, "AuthToken:" + auth_token, Toast.LENGTH_SHORT).show();
+                                     Toast.makeText(context, "Cookie:" + cookie, Toast.LENGTH_SHORT).show();
+                             }
+                             accountIndex++;
+                     }
+
+                     if (accountIndex < accounts.length) {
+                             // Account doesn't exist anymore for some reason.
+                             noAccountAlert();
+                     }
+             }
+     }
+	}
 	
 	private void loadArticles()
-    	{
-    		if(networkAvailability()) //until login is taken care of
-		{
-    			GetArticles get = new GetArticles();
-    			GetArticlesCommand command = new GetArticlesCommand();
-    			get.execute(command);
-        	}
-     	}  
+    {
+    	if(networkAvailability()) //until login is taken care of
+        {
+    		GetArticles get = new GetArticles();
+    		GetArticlesCommand command = new GetArticlesCommand();
+    		get.execute(command);
+        }
+     }  
 
 	private boolean networkAvailability() {
 		ConnectivityManager CM = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -178,23 +231,23 @@ public class MainActivity extends Activity {
 		return active != null && active.isConnected();
 	}
 
-	private void noNetworkAlert() {
-		new AlertDialog.Builder(this).setTitle("No Network Connection").setMessage("leggo cannot detect a network connection on this device.  Please check Network Settings to connect to an available network to use leggo.").setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				// nothing
-			}
-		}).show();
-	}
+    private void noNetworkAlert() {
+        new AlertDialog.Builder(this).setTitle("No Network Connection").setMessage("leggo cannot detect a network connection on this device. Please check Network Settings to connect to an available network to use leggo.").setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                        // nothing
+                }
+        }).show();
+    }
 
-	private void noAccountAlert() {
-		new AlertDialog.Builder(this).setTitle("No Google Account Selected").setMessage("leggo requires a Google Account to store your subscriptions.  Please select an existing account or create an account in Settings.").setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				Intent i = null;
-				i = new Intent(context, SettingsActivity.class);
-				startActivity(i);
-			}
-		}).show();
-	}
+    private void noAccountAlert() {
+        new AlertDialog.Builder(this).setTitle("No Google Account Selected").setMessage("leggo requires a Google Account to store your subscriptions. Please select an existing account or create an account in Settings.").setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                        Intent i = null;
+                        i = new Intent(context, SettingsActivity.class);
+                        startActivity(i);
+                }
+        }).show();
+    }
 	
 	public void listArticles() {
 		if(articles != null)
@@ -244,6 +297,47 @@ public class MainActivity extends Activity {
                 }
         }
 	}
+	
+   public Object testGetArticles() {
+        Object result = null;
+        try {
+                File dir = this.getFilesDir();
+                String fileName = "simplecta_all.htm";
+                String testFile = new File(dir + File.separator + fileName).getAbsolutePath();
+                GetArticlesCommand cmd = new GetArticlesCommand();
+                result = cmd.testFromFile(testFile);
+        } catch (Throwable ex) {
+                Log.e(TAG, ex.getMessage(), ex);
+        }
+        return result;
+    }
+    
+    public Object testGetFeeds() {
+        Object result = null;
+        try {
+                File dir = this.getFilesDir();
+                String fileName = "simplecta_feeds.htm";
+                String testFile = new File(dir + File.separator + fileName).getAbsolutePath();
+                GetFeedsCommand cmd = new GetFeedsCommand();
+                result = cmd.testFromFile(testFile);
+        } catch (Throwable ex) {
+                Log.e(TAG, ex.getMessage(), ex);
+        }
+        return result;
+    }
+    
+    public Object testGetRemoteArticles() {
+        Object result = null;
+        try {
+                GetArticlesCommand cmd = new GetArticlesCommand();
+                String c = prefs.getString("cookie", "default");
+                result = cmd.parseData(c);
+                Log.d(TAG, "RESULT:" + result);
+        } catch (Throwable ex) {
+                Log.e(TAG, ex.getMessage(), ex);
+        }
+        return result;
+    }
 	
 	protected class GetArticles extends AsyncTask<GetArticlesCommand, Integer, List<Article>> {
 		@Override
