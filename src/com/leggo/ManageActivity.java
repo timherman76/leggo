@@ -15,11 +15,13 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.app.ActionBar.LayoutParams;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -49,11 +51,13 @@ public class ManageActivity extends Activity {
 	private static List<Feed> allFeeds = null;
 	private File sdCard = Environment.getExternalStorageDirectory();
 	public static File filesDir;
+	private SharedPreferences prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_manage);
+		prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.context);
 		filesDir = new File(sdCard + "/Android/data/com.leggo/files");
 		filesDir.mkdirs();
 		loadFeeds();
@@ -331,7 +335,8 @@ public class ManageActivity extends Activity {
 			GetFeedsCommand get = params[0];
 			List<Feed> allFeeds = null;
 			try {
-				allFeeds = (List<Feed>) get.parseData();
+				String c = prefs.getString("cookie", "default");
+				allFeeds = (List<Feed>) get.parseData(c);
 				Log.d("FEEDS", "In try " + allFeeds.size());
 			} catch (IOException e) {
 				Log.d("FEEDS", "IOException caught");

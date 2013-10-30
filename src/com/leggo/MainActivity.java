@@ -44,12 +44,12 @@ public class MainActivity extends Activity {
 
 	public static final String TAG = "MainActivity";
     
-    private Context context;
+    public static Context context;
 
     private SharedPreferences prefs;
     
     private String currentAccountName;
-    List<Article> articles;
+    public static List<Article> articles;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -346,7 +346,8 @@ public class MainActivity extends Activity {
 			GetArticlesCommand get = params[0];
 			List<Article> articles = null;
 			try{
-				articles = (List<Article>)get.parseData();
+				String c = prefs.getString("cookie", "default");
+				articles = (List<Article>)get.parseData(c);
 				Log.d("ARTICLES","In try " + articles.size());
 			} catch(IOException e) {
 				Log.d("ARTICLES", "IOException caught");
