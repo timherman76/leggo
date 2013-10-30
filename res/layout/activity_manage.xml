@@ -2,11 +2,99 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-        <TextView
-        android:layout_width="fill_parent"
+    android:orientation="vertical"
+    android:paddingBottom="10dp">
+       
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Manage Feed Activity Here" />
+        android:gravity="right"
+        android:paddingRight="5dp"
+        android:id="@+id/manage_refresh_bar"
+    
+    />
+
+   <LinearLayout
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:background="@drawable/textlines"
+       android:orientation="vertical"
+       android:padding="5dp" >
+
+       <LinearLayout
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content" >
+
+           <EditText
+               android:id="@+id/add_feed_uri"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:ems="10"
+               android:hint="@string/add_feed_hint"
+               android:inputType="textUri"
+               android:paddingLeft="10dp"
+               android:paddingRight="12dp" />
+
+           <Button
+               android:id="@+id/add_feed"
+               android:layout_width="wrap_content"
+               android:layout_height="32dp"
+               android:onClick="addFeed"
+               android:text="@string/add_feed"
+               android:textSize="12sp" />
+       </LinearLayout>
+
+       <RadioGroup
+           android:layout_width="139dp"
+           android:layout_height="wrap_content"
+           android:layout_gravity="center"
+           android:orientation="vertical" >
+
+           <RadioButton
+               android:id="@+id/radio_atom"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:onClick="onRadioButtonClicked"
+               android:text="@string/atom_feed" />
+
+           <RadioButton
+               android:id="@+id/radio_rss"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:onClick="onRadioButtonClicked"
+               android:text="@string/rss_feed" />
+       </RadioGroup>
+       
+   </LinearLayout>
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:text="@string/feeds_header"
+       android:textSize="20sp"
+       android:textStyle="bold"
+       android:paddingTop="10dp" />
+   <ScrollView
+       android:id="@+id/feed_scroll"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center"
+       android:overScrollMode="never" >
+       <LinearLayout
+           android:id="@+id/feed_list"
+           android:orientation="vertical"
+           android:layout_height="wrap_content"
+           android:layout_width="match_parent"
+           android:padding="5dp"
+		   android:verticalSpacing="5dp"
+		   android:horizontalSpacing="10dp"
+		   android:numColumns="2"
+		   android:columnWidth="60dp"
+		   android:stretchMode="columnWidth"
+		   android:gravity="center_horizontal" >
+
+       </LinearLayout>
+   </ScrollView>
 
 </LinearLayout>
