@@ -59,12 +59,6 @@ public class MainActivity extends Activity {
 
 		context = this;
 
-		prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		new Thread() {
-			public void run() {
-				testGetRemoteArticles();
-			}
-		}.start();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		loadArticles();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -225,13 +219,7 @@ public class MainActivity extends Activity {
 				for (Account account : accounts) {
 					if (account.name.equals(currentAccountName)) {
 						// Things seem to be okay.
-						String auth_token = prefs.getString("token", "default");
-						String cookie = prefs.getString("cookie", "default");
-						/*
-						 * Toast.makeText(context, "AuthToken:" + auth_token,
-						 * Toast.LENGTH_SHORT).show(); Toast.makeText(context,
-						 * "Cookie:" + cookie, Toast.LENGTH_SHORT).show();
-						 */
+
 					}
 					accountIndex++;
 				}
