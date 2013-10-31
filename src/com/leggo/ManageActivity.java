@@ -126,19 +126,7 @@ public class ManageActivity extends Activity {
 			AddFeedCommand addMe = new AddFeedCommand(addlink);
 			AddFeed get = new AddFeed();
 			get.execute(addMe);
-			
-			if(!isAdded){
-				Toast failure = Toast.makeText(this,
-						"This link is invalid. Please try again.",
-						Toast.LENGTH_SHORT);
-				failure.show();
-			} else {
-				GetFeedsCommand getFeeds = new GetFeedsCommand();
-				GetFeeds listFeeds = new GetFeeds();
-				listFeeds.execute(getFeeds);
-			}
-			
-			
+
 			loadFeeds();
 		} else {
 			Toast warning = Toast.makeText(this,
@@ -372,8 +360,7 @@ public class ManageActivity extends Activity {
 		}
 	}
 
-	protected class AddFeed extends
-			AsyncTask<AddFeedCommand, Integer, Boolean> {
+	protected class AddFeed extends AsyncTask<AddFeedCommand, Integer, Boolean> {
 
 		@Override
 		protected Boolean doInBackground(AddFeedCommand... params) {
@@ -392,6 +379,12 @@ public class ManageActivity extends Activity {
 		@Override
 		protected void onPostExecute(Boolean success) {
 			ManageActivity.isAdded = (boolean) success;
+			if (!success) {
+				Toast failure = Toast.makeText(getBaseContext(),
+						"This URL is invalid. Please try again.",
+						Toast.LENGTH_SHORT);
+				failure.show();
+			}
 		}
 	}
 }
