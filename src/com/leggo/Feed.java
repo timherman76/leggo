@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.leggo.Article.ArticleSearchResult;
+
 public class Feed {
 
 	protected String URL;
@@ -87,6 +89,16 @@ public class Feed {
 			}
 		}
 		Collections.sort(result);
+		
+		return result;
+	}
+	
+	public static List<Feed> GetFeeds(List<FeedSearchResult> searchResults){
+		int numResults = searchResults != null ? searchResults.size() : 0;
+		List<Feed> result = new ArrayList<Feed>(numResults);
+		for (int i=0; i < numResults; i++){
+			result.add(searchResults.get(i).feed);
+		}
 		
 		return result;
 	}

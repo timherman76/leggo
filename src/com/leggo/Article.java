@@ -122,6 +122,16 @@ public class Article {
 		return result;
 	}
 	
+	public static List<Article> GetArticles(List<ArticleSearchResult> searchResults){
+		int numResults = searchResults != null ? searchResults.size() : 0;
+		List<Article> result = new ArrayList<Article>(numResults);
+		for (int i=0; i < numResults; i++){
+			result.add(searchResults.get(i).article);
+		}
+		
+		return result;
+	}
+	
 	public static List<Article> GetArticlesByFeed(Feed feed, List<Article> articles){
 		List<Article> result = new ArrayList<Article>();
 		for(Article a : articles){
