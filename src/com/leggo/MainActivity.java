@@ -99,8 +99,7 @@ public class MainActivity extends Activity {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					Article searcher = new Article();
-					List<ArticleSearchResult> results = searcher.search(v
+					List<ArticleSearchResult> results = Article.search(v
 							.getText().toString(), articles);
 					Log.d("LOLOL", v.getText().toString());
 					LinearLayout linearLayout = (LinearLayout) findViewById(R.id.article_list);

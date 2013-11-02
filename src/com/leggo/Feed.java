@@ -65,18 +65,19 @@ public class Feed {
 		for(Feed f : feeds){
 			String fName = f.getName().toLowerCase();
 			String fURL = f.getURL().toLowerCase();
-		
+			relevance = -1;
+			
 			if ( searchExpr.equals(fName) || searchExpr.equals(fURL) ){
 				relevance = 0;
 			}
 			else{
 				int nameIdx = fName.indexOf(searchExpr);
 				if(nameIdx >= 0){
-					relevance = 100 + nameIdx;
+					relevance = 1000 + nameIdx;
 				}else {
 					int urlIdx = fURL.indexOf(searchExpr);
 					if(urlIdx >= 0){
-						relevance = 200 + urlIdx;
+						relevance = 2000 + urlIdx;
 					}
 				}
 			}
@@ -84,9 +85,8 @@ public class Feed {
 			if ( relevance >= 0 ){
 				result.add(new FeedSearchResult(f, relevance));
 			}
-			
-			Collections.sort(result);
 		}
+		Collections.sort(result);
 		
 		return result;
 	}

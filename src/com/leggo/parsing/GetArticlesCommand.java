@@ -41,7 +41,7 @@ public class GetArticlesCommand extends SimplectaCommand {
 		return parseData(doc);
 	}
 
-	protected Object parseData(Document doc) {
+	public Object parseData(Document doc) {
 		List<Article> result = new ArrayList<Article>();
 
 		/*

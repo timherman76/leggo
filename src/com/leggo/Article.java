@@ -79,7 +79,15 @@ public class Article {
 		return result;
 	}
 	
-	public List<ArticleSearchResult> search(String searchExpr, List<Article> articles){
+	@Override
+	public String toString()
+	{
+		String result = "Title: "  + this.title;
+		result += "\nURL: " + this.URL;
+		return result;
+	}
+	
+	public static List<ArticleSearchResult> search(String searchExpr, List<Article> articles){
 		List<ArticleSearchResult> result = new ArrayList<ArticleSearchResult>();
 		int relevance = -1;
 		searchExpr = searchExpr.toLowerCase();
@@ -87,18 +95,19 @@ public class Article {
 		for(Article a : articles){
 			String aName = a.getTitle().toLowerCase();
 			String aURL = a.getURL().toLowerCase();
-		
+			relevance = -1;
+			
 			if ( searchExpr.equals(aName) || searchExpr.equals(aURL) ){
 				relevance = 0;
 			}
 			else{
 				int nameIdx = aName.indexOf(searchExpr);
 				if(nameIdx >= 0){
-					relevance = 100 + nameIdx;
+					relevance = 1000 + nameIdx;
 				}else {
 					int urlIdx = aURL.indexOf(searchExpr);
 					if(urlIdx >= 0){
-						relevance = 200 + urlIdx;
+						relevance = 2000 + urlIdx;
 					}
 				}
 			}
@@ -106,9 +115,9 @@ public class Article {
 			if ( relevance >= 0 ){
 				result.add(new ArticleSearchResult(a, relevance));
 			}
-			
-			Collections.sort(result);
 		}
+		
+		Collections.sort(result);
 		
 		return result;
 	}
@@ -124,7 +133,7 @@ public class Article {
 		return result;
 	}
 	
-	public class ArticleSearchResult implements Comparable<ArticleSearchResult>{
+	public static class ArticleSearchResult implements Comparable<ArticleSearchResult>{
 		
 		public Article article;
 		public int relevance;
@@ -146,7 +155,16 @@ public class Article {
 			}
 			return result;
 		}
+		
+		@Override
+		public String toString()
+		{
+			String result = this.article.toString();
+			result += "\nRelevance: " + this.relevance;
+			return result;
+		}
 	}
+	
 	
 	
 	
