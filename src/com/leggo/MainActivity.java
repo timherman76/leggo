@@ -12,6 +12,7 @@ import com.leggo.parsing.GetFeedsCommand;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -149,12 +150,9 @@ public class MainActivity extends Activity {
 							public void onClick(View v) {
 								int id = v.getId();
 								if (id % 2 == 1) {
-									WebView webview = new WebView(
-											getBaseContext());
-									setContentView(webview);
+									Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
+									startActivity(browserIntent);
 
-									webview.loadUrl(articles.get(id / 2)
-											.getURL());
 								}
 							}
 						});
@@ -305,10 +303,8 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 0) {
-							WebView webview = new WebView(getBaseContext());
-							setContentView(webview);
-
-							webview.loadUrl(articles.get(id / 2).getURL());
+							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
+							startActivity(browserIntent);
 						}
 					}
 				});
@@ -321,10 +317,8 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 1) {
-							WebView webview = new WebView(getBaseContext());
-							setContentView(webview);
-
-							webview.loadUrl(articles.get(id / 2).getURL());
+							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
+							startActivity(browserIntent);
 						}
 					}
 				});
