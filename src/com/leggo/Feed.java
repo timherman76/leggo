@@ -59,7 +59,7 @@ public class Feed {
 		Type = type;
 	}
 	
-	public List<FeedSearchResult> search(String searchExpr, List<Feed> feeds){
+	public static List<FeedSearchResult> search(String searchExpr, List<Feed> feeds){
 		List<FeedSearchResult> result = new ArrayList<FeedSearchResult>();
 		int relevance = -1;
 		searchExpr = searchExpr.toLowerCase();
@@ -113,7 +113,7 @@ public class Feed {
 		return result;
 	}
 	
-	public class FeedSearchResult implements Comparable<FeedSearchResult>{
+	public static class FeedSearchResult implements Comparable<FeedSearchResult>{
 		
 		public Feed feed;
 		public int relevance;
