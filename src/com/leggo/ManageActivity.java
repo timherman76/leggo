@@ -231,8 +231,7 @@ public class ManageActivity extends Activity {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					Feed searcher = new Feed();
-					List<FeedSearchResult> results = searcher.search(v
+					List<FeedSearchResult> results = Feed.search(v
 							.getText().toString(), allFeeds);
 					Log.d("LOLOL", v.getText().toString());
 					LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
