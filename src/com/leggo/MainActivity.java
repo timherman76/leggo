@@ -10,8 +10,6 @@ import com.leggo.Article.ArticleSearchResult;
 import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
 
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,10 +18,8 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -48,6 +44,7 @@ public class MainActivity extends Activity {
 	public static Context context;
 
 	private SharedPreferences prefs;
+	private SharedPreferences.Editor editor;
 
 	private String currentAccountName;
 	public static List<Article> articles;
@@ -59,6 +56,8 @@ public class MainActivity extends Activity {
 		context = this;
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        editor = prefs.edit();
+        
         
         Theme.setPrefTheme(this);
         
@@ -195,38 +194,53 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		if (networkAvailability() == false) {
-			noNetworkAlert();
-		} else {
+		
+		// Check for network every time activity is resumed
+		if (Utils.networkAvailability(this) == false) 
+		{
+			Utils.noNetworkAlert(this);
+		} 
+		else {
+			AccountManager accountManager = AccountManager
+					.get(getApplicationContext());
+			Account[] accounts = accountManager
+					.getAccountsByType("com.google");
+			
+			// If for some reason, your account was deleted, set account to None
+			if (accounts.length == 0)
+			{
+				editor.putString("account_selection", "None");
+				editor.commit();
+			}
+			
 			currentAccountName = prefs
 					.getString("account_selection", "default");
+			
+
 			Toast.makeText(context,
 					"Currently logged in to " + currentAccountName,
 					Toast.LENGTH_SHORT).show();
-
+			
+			// If there is no account, send user to settings
 			if (currentAccountName.equals("None")
 					|| currentAccountName.equals("default")) {
-				noAccountAlert();
-			} else {
-				AccountManager accountManager = AccountManager
-						.get(getApplicationContext());
-				Account[] accounts = accountManager
-						.getAccountsByType("com.google");
-
+				Utils.noAccountAlert(this);
+			} 
+			else {
 				// Find index where account is
 				int accountIndex = 0;
 				for (Account account : accounts) {
 					if (account.name.equals(currentAccountName)) {
-						// Things seem to be okay.
-
+						// Found account, revalidate here
 					}
 					accountIndex++;
 				}
 
 				if (accountIndex < accounts.length) {
 					// Account doesn't exist anymore for some reason.
-					noAccountAlert();
+					editor.putString("account_selection", "None");
+					editor.commit();
+					Utils.noAccountAlert(this);
 				}
 			}
 
@@ -236,48 +250,12 @@ public class MainActivity extends Activity {
 	}
 
 	private void loadArticles() {
-		if (networkAvailability()) // until login is taken care of
+		if (Utils.networkAvailability(this)) // until login is taken care of
 		{
 			GetArticles get = new GetArticles();
 			GetArticlesCommand command = new GetArticlesCommand();
 			get.execute(command);
 		}
-	}
-
-	private boolean networkAvailability() {
-		ConnectivityManager CM = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo active = CM.getActiveNetworkInfo();
-		return active != null && active.isConnected();
-	}
-
-	private void noNetworkAlert() {
-		new AlertDialog.Builder(this)
-				.setTitle("No Network Connection")
-				.setMessage(
-						"leggo cannot detect a network connection on this device. Please check Network Settings to connect to an available network to use leggo.")
-				.setPositiveButton("Okay",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								// nothing
-							}
-						}).show();
-	}
-
-	private void noAccountAlert() {
-		new AlertDialog.Builder(this)
-				.setTitle("No Google Account Selected")
-				.setMessage(
-						"leggo requires a Google Account to store your subscriptions. Please select an existing account or create an account in Settings.")
-				.setPositiveButton("Settings",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Intent i = null;
-								i = new Intent(context, SettingsActivity.class);
-								startActivity(i);
-							}
-						}).show();
 	}
 
 	public void listArticles() {
