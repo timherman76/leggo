@@ -50,18 +50,26 @@ public class ManageActivity extends Activity {
 	public static File filesDir;
 	private SharedPreferences prefs;
 	public static boolean isAdded;
+	private Context context;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_manage);
-		prefs = PreferenceManager
-				.getDefaultSharedPreferences(MainActivity.context);
+
+		context = this;
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+		Theme.setPrefTheme(this);
+
 		filesDir = new File(sdCard + "/Android/data/com.leggo/files");
 		filesDir.mkdirs();
 		loadFeeds();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
+
+		setContentView(R.layout.activity_manage);
+
 		TextView refreshBar = (TextView) findViewById(R.id.manage_refresh_bar);
 		refreshBar.setText(df.format(now).toString());
 	}
@@ -95,14 +103,11 @@ public class ManageActivity extends Activity {
 		EditText uri = (EditText) findViewById(R.id.add_feed_uri);
 		String text = uri.getText().toString();
 		if (text == null || text.isEmpty()) {
-			Toast warning = Toast.makeText(this, "Please enter a feed url.",
-					Toast.LENGTH_SHORT);
+			Toast warning = Toast.makeText(this, "Please enter a feed url.", Toast.LENGTH_SHORT);
 			warning.show();
 			return;
 		} else if (atom == false && rss == false) {
-			Toast warning = Toast.makeText(this,
-					"Please select a feed type and try again.",
-					Toast.LENGTH_SHORT);
+			Toast warning = Toast.makeText(this, "Please select a feed type and try again.", Toast.LENGTH_SHORT);
 			warning.show();
 			return;
 		}
@@ -129,9 +134,7 @@ public class ManageActivity extends Activity {
 
 			loadFeeds();
 		} else {
-			Toast warning = Toast.makeText(this,
-					"Please connect to the internet to add a feed.",
-					Toast.LENGTH_SHORT);
+			Toast warning = Toast.makeText(this, "Please connect to the internet to add a feed.", Toast.LENGTH_SHORT);
 			warning.show();
 			return;
 		}
@@ -145,12 +148,10 @@ public class ManageActivity extends Activity {
 		// Check which radio button was clicked
 		switch (view.getId()) {
 		case R.id.radio_atom:
-			if (checked)
-				setAtom();
+			if (checked) setAtom();
 			break;
 		case R.id.radio_rss:
-			if (checked)
-				setRSS();
+			if (checked) setRSS();
 			break;
 		}
 	}
@@ -159,45 +160,37 @@ public class ManageActivity extends Activity {
 		if (allFeeds != null) {
 			Log.d("FEEDS", "Here " + allFeeds.size());
 			LinearLayout feedScroll = (LinearLayout) findViewById(R.id.feed_list);
-			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
-			LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.90f);
+			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
+			LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.90f);
 			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
-			if (((LinearLayout) linearLayout).getChildCount() > 0)
-				((LinearLayout) linearLayout).removeAllViews();
+			if (((LinearLayout) linearLayout).getChildCount() > 0) ((LinearLayout) linearLayout).removeAllViews();
 			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
 				LinearLayout currFeed = new LinearLayout(this);
 				currFeed.setOrientation(LinearLayout.HORIZONTAL);
 				Button feedName = new Button(this);
 				feedName.setId(i);
 				feedName.setText((CharSequence) (allFeeds.get(i / 2).getName()));
-				feedName.setBackground(getResources().getDrawable(
-						R.drawable.roundbutton));
+				feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
 				feedName.setGravity(Gravity.LEFT);
 				feedName.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
-						if (id == R.id.add_feed)
-							addFeed(v);
-						else if (id % 2 == 0)
-							viewFeed(allFeeds.get(id / 2));
+						if (id == R.id.add_feed) addFeed(v);
+						else if (id % 2 == 0) viewFeed(allFeeds.get(id / 2));
 					}
 				});
 				feedName.setLayoutParams(param);
 				ImageButton unsubscribe = new ImageButton(this);
 				unsubscribe.setId(i + 1);
-				Drawable icon = getResources().getDrawable(
-						R.drawable.ic_menu_delete);
+				Drawable icon = getResources().getDrawable(R.drawable.ic_menu_delete);
 				unsubscribe.setBackground(icon);
 				unsubscribe.setLayoutParams(param2);
 				unsubscribe.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
-						if (id == R.id.add_feed)
-							addFeed(v);
+						if (id == R.id.add_feed) addFeed(v);
 						else if (id % 2 == 1)
-							;
+						;
 						// replace with object call
 						// allFeeds.get((id-1)/2).unsubscribe();
 					}
@@ -224,86 +217,68 @@ public class ManageActivity extends Activity {
 			ActionBar actionBar = getActionBar();
 			// actionBar.hide();
 			actionBar.setCustomView(R.layout.searchbar);
-			EditText search = (EditText) actionBar.getCustomView()
-					.findViewById(R.id.action_searchfield);
+			EditText search = (EditText) actionBar.getCustomView().findViewById(R.id.action_searchfield);
 			search.setOnEditorActionListener(new OnEditorActionListener() {
 
 				@Override
-				public boolean onEditorAction(TextView v, int actionId,
-						KeyEvent event) {
-					List<FeedSearchResult> results = Feed.search(v
-							.getText().toString(), allFeeds);
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					List<FeedSearchResult> results = Feed.search(v.getText().toString(), allFeeds);
 					Log.d("LOLOL", v.getText().toString());
 					LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
-					if (((LinearLayout) linearLayout).getChildCount() > 0)
-						((LinearLayout) linearLayout).removeAllViews();
-					LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT, 0.10f);
-					LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT, 0.90f);
+					if (((LinearLayout) linearLayout).getChildCount() > 0) ((LinearLayout) linearLayout).removeAllViews();
+					LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
+					LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.90f);
 					for (int i = 0; i < 2 * results.size(); i += 2) {
 						LinearLayout feedScroll = linearLayout;
-						LinearLayout currfeed = new LinearLayout(
-								getBaseContext());
+						LinearLayout currfeed = new LinearLayout(getBaseContext());
 						currfeed.setOrientation(LinearLayout.HORIZONTAL);
 						Button feedName = new Button(getBaseContext());
 						feedName.setId(i);
-						feedName.setText((CharSequence) (results.get(i / 2).feed
-								.getName()));
+						feedName.setText((CharSequence) (results.get(i / 2).feed.getName()));
 						feedName.setTextColor(Color.parseColor("#000000"));
-						feedName.setBackground(getResources().getDrawable(
-								R.drawable.roundbutton));
+						feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
 						feedName.setGravity(Gravity.LEFT);
 						feedName.setOnClickListener(new View.OnClickListener() {
 							public void onClick(View v) {
 								int id = v.getId();
 								if (id % 2 == 0)
-									;
+								;
 								// replace with call for view;
 							}
 						});
 						feedName.setLayoutParams(param);
-						ImageButton unsubscribe = new ImageButton(
-								getBaseContext());
+						ImageButton unsubscribe = new ImageButton(getBaseContext());
 						unsubscribe.setId(i + 1);
-						Drawable icon = getResources().getDrawable(
-								R.drawable.ic_menu_delete);
+						Drawable icon = getResources().getDrawable(R.drawable.ic_menu_delete);
 						unsubscribe.setBackground(icon);
 						unsubscribe.setLayoutParams(param2);
-						unsubscribe
-								.setOnClickListener(new View.OnClickListener() {
-									public void onClick(View v) {
-										int id = v.getId();
-										if (id == R.id.add_feed)
-											addFeed(v);
-										else if (id % 2 == 1)
-											;
-										// replace with object call
-										// allFeeds.get((id-1)/2).unsubscribe();
-									}
-								});
+						unsubscribe.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								int id = v.getId();
+								if (id == R.id.add_feed) addFeed(v);
+								else if (id % 2 == 1)
+								;
+								// replace with object call
+								// allFeeds.get((id-1)/2).unsubscribe();
+							}
+						});
 						currfeed.addView(feedName);
 						currfeed.addView(unsubscribe);
 						feedScroll.addView(currfeed);
 
 					}
 					ActionBar actionBar = getActionBar();
-					actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
-							| ActionBar.DISPLAY_SHOW_HOME);
+					actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_HOME);
 					return false;
 				}
 			});
-			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM
-					| ActionBar.DISPLAY_SHOW_HOME);
+			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
 			// actionBar.show();
 
 			break;
 		case R.id.action_refresh:
 			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
-			if (((LinearLayout) linearLayout).getChildCount() > 0)
-				((LinearLayout) linearLayout).removeAllViews();
+			if (((LinearLayout) linearLayout).getChildCount() > 0) ((LinearLayout) linearLayout).removeAllViews();
 			GetFeedsCommand refresh = new GetFeedsCommand();
 			GetFeeds get = new GetFeeds();
 			get.execute(refresh);
@@ -331,8 +306,7 @@ public class ManageActivity extends Activity {
 		// TODO: implement this. Might need to add a new activity.
 	}
 
-	protected class GetFeeds extends
-			AsyncTask<GetFeedsCommand, Integer, List<Feed>> {
+	protected class GetFeeds extends AsyncTask<GetFeedsCommand, Integer, List<Feed>> {
 
 		@SuppressWarnings("unchecked")
 		@Override
@@ -379,9 +353,7 @@ public class ManageActivity extends Activity {
 		protected void onPostExecute(Boolean success) {
 			ManageActivity.isAdded = (boolean) success;
 			if (!success) {
-				Toast failure = Toast.makeText(getBaseContext(),
-						"This URL is invalid. Please try again.",
-						Toast.LENGTH_SHORT);
+				Toast failure = Toast.makeText(getBaseContext(), "This URL is invalid. Please try again.", Toast.LENGTH_SHORT);
 				failure.show();
 			}
 		}

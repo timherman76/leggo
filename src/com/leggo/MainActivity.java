@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -56,14 +55,19 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-
+		
 		context = this;
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        
+        Theme.setPrefTheme(this);
+        
 		loadArticles();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
+
+		setContentView(R.layout.activity_main);
+		
 		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
 		refreshBar.setText(df.format(now).toString());
 
@@ -122,7 +126,6 @@ public class MainActivity extends Activity {
 						articleName.setId(i);
 						articleName.setText((CharSequence) (results.get(i / 2).article
 								.getTitle()));
-						articleName.setTextColor(Color.parseColor("#000000"));
 						articleName.setGravity(Gravity.LEFT);
 						articleName.setBackground(getBaseContext()
 								.getResources().getDrawable(
@@ -297,7 +300,6 @@ public class MainActivity extends Activity {
 						.getTitle()));
 				articleName.setBackground(getResources().getDrawable(
 						R.drawable.roundbutton));
-				articleName.setTextColor(Color.parseColor("#000000"));
 				articleName.setGravity(Gravity.LEFT);
 				articleName.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
