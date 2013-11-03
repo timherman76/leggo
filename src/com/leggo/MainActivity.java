@@ -48,6 +48,8 @@ public class MainActivity extends Activity {
 
 	private String currentAccountName;
 	public static List<Article> articles;
+	
+	public static boolean shouldRestart;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,8 @@ public class MainActivity extends Activity {
 		
 		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
 		refreshBar.setText(df.format(now).toString());
+		
+		shouldRestart = false;
 
 	}
 
@@ -194,6 +198,12 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		if (shouldRestart == true)
+		{
+			Utils.restartActivity(this);
+			shouldRestart = false;
+		}
 		
 		// Check for network every time activity is resumed
 		if (Utils.networkAvailability(this) == false) 

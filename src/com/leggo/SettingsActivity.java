@@ -14,6 +14,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -41,10 +42,11 @@ public class SettingsActivity extends PreferenceActivity {
 
 	private PreferenceManager prefManager;
 	private OnPreferenceChangeListener accountChangeListener;
-	
+	private OnPreferenceChangeListener themeChangeListener;
+
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor editor;
-	
+
 	private ListPreference accountSelectionPref;
 
 	private String ACCOUNT_SELECTION = "account_selection";
@@ -63,17 +65,17 @@ public class SettingsActivity extends PreferenceActivity {
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		editor = prefs.edit();
-		
+
 		Theme.setPrefTheme(this);
-        
+
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.activity_settings);
-		
+
 		// Create shared preference and set the name
 		prefManager = getPreferenceManager();
-		
+
 		accountSelectionPref = (ListPreference) findPreference("account_selection");
-		
+
 		id = 0;
 		idRequests = new String[10];
 
@@ -110,6 +112,7 @@ public class SettingsActivity extends PreferenceActivity {
 					}
 
 				}
+
 				return false;
 			}
 		};
@@ -127,6 +130,34 @@ public class SettingsActivity extends PreferenceActivity {
 				return true;
 			}
 		});
+		
+		// Listen for changes in Night Mode
+		themeChangeListener = new OnPreferenceChangeListener() {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+				if (preference.getKey().equals("nightMode")) {
+					boolean nightToggle = (Boolean) newValue;
+					if (nightToggle == false) 
+					{
+						Theme.changeTheme(SettingsActivity.this, Theme.THEME_DEFAULT);
+						MainActivity.shouldRestart = true;
+						return true;
+					}
+					else
+					{
+						Theme.changeTheme(SettingsActivity.this, Theme.THEME_NIGHT);
+						MainActivity.shouldRestart = true;
+						return true;
+					}
+				}
+
+				return false;
+			}
+		};
+		
+		// Set the listener to detect changes on the nightmode preferences
+		CheckBoxPreference nightModePref = (CheckBoxPreference) prefManager.findPreference("nightMode");
+		nightModePref.setOnPreferenceChangeListener(themeChangeListener);
 	}
 
 	@Override
