@@ -72,12 +72,13 @@ public class ManageActivity extends Activity {
 
 		TextView refreshBar = (TextView) findViewById(R.id.manage_refresh_bar);
 		refreshBar.setText(df.format(now).toString());
+
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.manage, menu);
 		return true;
 	}
 
@@ -207,10 +208,6 @@ public class ManageActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.action_settings:
 			i = new Intent(this, SettingsActivity.class);
-			startActivity(i);
-			break;
-		case R.id.action_manage:
-			i = new Intent(this, ManageActivity.class);
 			startActivity(i);
 			break;
 		case R.id.action_search:
