@@ -19,6 +19,7 @@ import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -179,7 +180,7 @@ public class MainActivity extends Activity {
 			if (((LinearLayout) linearLayout).getChildCount() > 0)
 				((LinearLayout) linearLayout).removeAllViews();
 			GetArticlesCommand refresh = new GetArticlesCommand();
-			GetArticles get = new GetArticles();
+			GetArticles get = new GetArticles(this);
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 			get.execute(refresh);
 			Date now = new Date();
@@ -257,7 +258,7 @@ public class MainActivity extends Activity {
 	private void loadArticles() {
 		if (Utils.networkAvailability(this)) // until login is taken care of
 		{
-			GetArticles get = new GetArticles();
+			GetArticles get = new GetArticles(this);
 			GetArticlesCommand command = new GetArticlesCommand();
 			get.execute(command);
 		}
@@ -359,6 +360,21 @@ public class MainActivity extends Activity {
 	}
 
 	protected class GetArticles extends AsyncTask<GetArticlesCommand, Integer, List<Article>> {
+		private Context c;
+		private ProgressDialog dialog;
+		public GetArticles(Context context){
+			c = context;
+			dialog = new ProgressDialog(c);
+			dialog.setMessage("Loading Articles");
+			dialog.show();
+		}
+		
+		@Override
+		protected void onPreExecute(){
+			
+		}
+		
+		@SuppressWarnings("unchecked")
 		@Override
 		protected List<Article> doInBackground(GetArticlesCommand... params) {
 			GetArticlesCommand get = params[0];
@@ -376,6 +392,10 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(List<Article> result) {
+			if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+
 			Log.d("ARTICLES", "On Post Execute " + result.size());
 			MainActivity.articles = result;
 			listArticles();
