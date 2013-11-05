@@ -110,7 +110,9 @@ public class MainActivity extends Activity {
 						KeyEvent event) {
 					List<ArticleSearchResult> results = Article.search(v
 							.getText().toString(), articles);
-					Log.d("LOLOL", v.getText().toString());
+					articles = Article.GetArticles(results);
+					listArticles();
+					/*Log.d("LOLOL", v.getText().toString());
 					LinearLayout linearLayout = (LinearLayout) findViewById(R.id.article_list);
 					if (((LinearLayout) linearLayout).getChildCount() > 0)
 						((LinearLayout) linearLayout).removeAllViews();
@@ -164,6 +166,7 @@ public class MainActivity extends Activity {
 						articleScroll.addView(currArticle);
 
 					}
+					*/
 					ActionBar actionBar = getActionBar();
 					actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 							| ActionBar.DISPLAY_SHOW_HOME);
@@ -176,9 +179,6 @@ public class MainActivity extends Activity {
 
 			break;
 		case R.id.action_refresh:
-			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.article_list);
-			if (((LinearLayout) linearLayout).getChildCount() > 0)
-				((LinearLayout) linearLayout).removeAllViews();
 			GetArticlesCommand refresh = new GetArticlesCommand();
 			GetArticles get = new GetArticles(this);
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -268,6 +268,8 @@ public class MainActivity extends Activity {
 		if (articles != null) {
 			Log.d("ARTICLES", "Here " + articles.size());
 			LinearLayout articleScroll = (LinearLayout) findViewById(R.id.article_list);
+			if ((articleScroll).getChildCount() > 0) //clear list of articles
+				(articleScroll).removeAllViews();
 			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
 			LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
