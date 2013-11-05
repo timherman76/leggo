@@ -17,9 +17,11 @@ import android.preference.PreferenceManager;
 import android.app.ActionBar.LayoutParams;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -41,6 +43,7 @@ import com.leggo.Feed;
 import com.leggo.Feed.FeedSearchResult;
 import com.leggo.parsing.AddFeedCommand;
 import com.leggo.parsing.GetFeedsCommand;
+import com.leggo.parsing.UnsubscribeCommand;
 
 public class ManageActivity extends Activity {
 	boolean atom = false;
@@ -93,7 +96,7 @@ public class ManageActivity extends Activity {
 		// File output = new File(filesDir, "feeds.htm");
 		if (networkAvailability()) // until login is taken care of
 		{
-			GetFeeds get = new GetFeeds();
+			GetFeeds get = new GetFeeds(this);
 			GetFeedsCommand command = new GetFeedsCommand();
 			get.execute(command);
 		}
@@ -190,10 +193,12 @@ public class ManageActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id == R.id.add_feed) addFeed(v);
-						else if (id % 2 == 1)
-						;
-						// replace with object call
-						// allFeeds.get((id-1)/2).unsubscribe();
+						else if (id % 2 == 1){
+							String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
+							UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
+							RemoveFeed remove = new RemoveFeed();
+							remove.execute(unsub);
+						}
 					}
 				});
 				currFeed.addView(feedName);
@@ -277,7 +282,7 @@ public class ManageActivity extends Activity {
 			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
 			if (((LinearLayout) linearLayout).getChildCount() > 0) ((LinearLayout) linearLayout).removeAllViews();
 			GetFeedsCommand refresh = new GetFeedsCommand();
-			GetFeeds get = new GetFeeds();
+			GetFeeds get = new GetFeeds(this);
 			get.execute(refresh);
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 			Date now = new Date();
@@ -304,7 +309,20 @@ public class ManageActivity extends Activity {
 	}
 
 	protected class GetFeeds extends AsyncTask<GetFeedsCommand, Integer, List<Feed>> {
-
+		Context c;
+		ProgressDialog dialog;
+		
+		public GetFeeds(Context context){
+			c = context;
+			dialog = new ProgressDialog(c);
+		}
+		
+		
+		@Override
+		public void onPreExecute(){
+			dialog.setMessage("Loading Feeds");
+			dialog.show();
+		}
 		@SuppressWarnings("unchecked")
 		@Override
 		protected List<Feed> doInBackground(GetFeedsCommand... params) {
@@ -323,6 +341,9 @@ public class ManageActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(List<Feed> result) {
+			if(dialog.isShowing()) {
+				dialog.dismiss();
+			}
 			Log.d("FEEDS", "On Post Execute " + result.size());
 			ManageActivity.allFeeds = result;
 			listFeeds();
@@ -354,5 +375,34 @@ public class ManageActivity extends Activity {
 				failure.show();
 			}
 		}
+	}
+	
+	public class RemoveFeed extends AsyncTask<UnsubscribeCommand, Integer, Boolean>{
+		private boolean success = false;
+		
+		@Override
+		public Boolean doInBackground(UnsubscribeCommand... params){
+			UnsubscribeCommand unsub = params[0];
+			try{
+				String c = prefs.getString("cookie", "default");
+				success = (Boolean) unsub.parseData(c);
+			} catch(IOException e) {
+				Log.e("FEEDS", "IOException caught", e);
+				return false;
+			}
+			return (Boolean) success;
+		}
+		
+		@Override
+		public void onPostExecute(Boolean success){
+			listFeeds();
+		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig){
+		super.onConfigurationChanged(newConfig);
+		setContentView(R.layout.activity_manage);
+		listFeeds();
 	}
 }

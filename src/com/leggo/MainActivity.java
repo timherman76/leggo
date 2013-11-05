@@ -22,13 +22,13 @@ import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -138,17 +138,12 @@ public class MainActivity extends Activity {
 									public void onClick(View v) {
 										int id = v.getId();
 										if (id % 2 == 0) {
-											WebView webview = new WebView(
-													getBaseContext());
-											setContentView(webview);
-
-											webview.loadUrl(articles
-													.get(id / 2).getURL());
+											Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
+											startActivity(browserIntent);
 										}
 									}
 								});
-						articleName.setLayoutParams(param);
-						ImageButton peek = new ImageButton(getBaseContext());
+						ImageButton peek = new ImageButton(getBaseContext());					
 						peek.setId(i + 1);
 						peek.setBackground(getBaseContext().getResources()
 								.getDrawable(R.drawable.ic_read));
@@ -385,6 +380,13 @@ public class MainActivity extends Activity {
 			MainActivity.articles = result;
 			listArticles();
 		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig){
+		super.onConfigurationChanged(newConfig);
+		setContentView(R.layout.activity_main);
+		listArticles();
 	}
 
 }
