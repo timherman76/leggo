@@ -198,6 +198,8 @@ public class ManageActivity extends Activity {
 							UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
 							RemoveFeed remove = new RemoveFeed();
 							remove.execute(unsub);
+							allFeeds.remove((id-1)/2);
+							listFeeds();
 						}
 					}
 				});
@@ -259,9 +261,14 @@ public class ManageActivity extends Activity {
 								int id = v.getId();
 								if (id == R.id.add_feed) addFeed(v);
 								else if (id % 2 == 1)
-								;
-								// replace with object call
-								// allFeeds.get((id-1)/2).unsubscribe();
+								{
+									String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
+									UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
+									RemoveFeed remove = new RemoveFeed();
+									remove.execute(unsub);
+									allFeeds.remove((id-1)/2);
+									listFeeds();
+								}
 							}
 						});
 						currfeed.addView(feedName);
@@ -374,6 +381,7 @@ public class ManageActivity extends Activity {
 				Toast failure = Toast.makeText(getBaseContext(), "This URL is invalid. Please try again.", Toast.LENGTH_SHORT);
 				failure.show();
 			}
+			listFeeds();
 		}
 	}
 	
@@ -391,11 +399,6 @@ public class ManageActivity extends Activity {
 				return false;
 			}
 			return (Boolean) success;
-		}
-		
-		@Override
-		public void onPostExecute(Boolean success){
-			listFeeds();
 		}
 	}
 	

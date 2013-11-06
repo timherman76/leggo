@@ -49,14 +49,15 @@
             android:layout_width="139dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:orientation="vertical" >
+            android:orientation="horizontal" >
 
             <RadioButton
                 android:id="@+id/radio_atom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="onRadioButtonClicked"
-                android:text="@string/atom_feed" />
+                android:text="@string/atom_feed"
+                android:paddingRight="5dp" />
 
             <RadioButton
                 android:id="@+id/radio_rss"
