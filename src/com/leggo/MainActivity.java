@@ -110,64 +110,15 @@ public class MainActivity extends Activity {
 						KeyEvent event) {
 					List<ArticleSearchResult> results = Article.search(v
 							.getText().toString(), articles);
-					Log.d("LOLOL", v.getText().toString());
-					LinearLayout linearLayout = (LinearLayout) findViewById(R.id.article_list);
-					if (((LinearLayout) linearLayout).getChildCount() > 0)
-						((LinearLayout) linearLayout).removeAllViews();
-					LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT, 0.10f);
-					LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT, 0.90f);
-					for (int i = 0; i < 2 * results.size(); i += 2) {
-						LinearLayout articleScroll = (LinearLayout) findViewById(R.id.article_list);
-						LinearLayout currArticle = new LinearLayout(
-								getBaseContext());
-						currArticle.setOrientation(LinearLayout.HORIZONTAL);
-						currArticle.setPadding(5, 5, 5, 5);
-						Button articleName = new Button(getBaseContext());
-						articleName.setId(i);
-						articleName.setText((CharSequence) (results.get(i / 2).article
-								.getTitle()));
-						articleName.setGravity(Gravity.LEFT);
-						articleName.setBackground(getBaseContext()
-								.getResources().getDrawable(
-										R.drawable.textlines));
-						articleName
-								.setOnClickListener(new View.OnClickListener() {
-									public void onClick(View v) {
-										int id = v.getId();
-										if (id % 2 == 0) {
-											Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
-											startActivity(browserIntent);
-										}
-									}
-								});
-						ImageButton peek = new ImageButton(getBaseContext());					
-						peek.setId(i + 1);
-						peek.setBackground(getBaseContext().getResources()
-								.getDrawable(R.drawable.ic_read));
-						peek.setOnClickListener(new View.OnClickListener() {
-							public void onClick(View v) {
-								int id = v.getId();
-								if (id % 2 == 1) {
-									Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
-									startActivity(browserIntent);
-
-								}
-							}
-						});
-						peek.setLayoutParams(param2);
-						currArticle.addView(articleName);
-						currArticle.addView(peek);
-						articleScroll.addView(currArticle);
-
-					}
+					articles = Article.GetArticles(results);
+					listArticles();
+										
 					ActionBar actionBar = getActionBar();
 					actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 							| ActionBar.DISPLAY_SHOW_HOME);
+					
 					return false;
+					
 				}
 			});
 			actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM

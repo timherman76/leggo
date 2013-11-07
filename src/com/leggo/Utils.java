@@ -10,6 +10,9 @@ import android.net.NetworkInfo;
 
 public class Utils {
 	
+	public static final String urlRegex = "(http|https):\\/\\/([\\w\\-_]+(?:(?:\\.[\\w\\-_]+)+))([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?";
+	
+	
 	public static boolean networkAvailability(Activity activity) {
 		ConnectivityManager CM = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo active = CM.getActiveNetworkInfo();
