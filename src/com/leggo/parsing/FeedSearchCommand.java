@@ -12,10 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import android.util.Log;
-
 import com.leggo.Feed;
-import com.leggo.FeedMap;
 
 public class FeedSearchCommand extends RssSearchHubCommand {
 

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.leggo.Article.ArticleSearchResult;
-
 public class Feed {
 
 	protected String URL;
@@ -59,10 +57,11 @@ public class Feed {
 		Type = type;
 	}
 	
-	public static List<FeedSearchResult> search(String searchExpr, List<Feed> feeds){
-		List<FeedSearchResult> result = new ArrayList<FeedSearchResult>();
+	public static List<Feed> search(String searchExpr, List<Feed> feeds){
 		int relevance = -1;
 		searchExpr = searchExpr.toLowerCase();
+		
+		List<FeedSearchResult> searchResults = new ArrayList<FeedSearchResult>();
 		
 		for(Feed f : feeds){
 			String fName = f.getName().toLowerCase();
@@ -85,20 +84,18 @@ public class Feed {
 			}
 			
 			if ( relevance >= 0 ){
-				result.add(new FeedSearchResult(f, relevance));
+				searchResults.add(new FeedSearchResult(f, relevance));
 			}
 		}
-		Collections.sort(result);
+		Collections.sort(searchResults);
 		
-		return result;
-	}
-	
-	public static List<Feed> GetFeeds(List<FeedSearchResult> searchResults){
 		int numResults = searchResults != null ? searchResults.size() : 0;
+		
 		List<Feed> result = new ArrayList<Feed>(numResults);
 		for (int i=0; i < numResults; i++){
 			result.add(searchResults.get(i).feed);
 		}
+		
 		
 		return result;
 	}

@@ -87,8 +87,8 @@ public class Article {
 		return result;
 	}
 	
-	public static List<ArticleSearchResult> search(String searchExpr, List<Article> articles){
-		List<ArticleSearchResult> result = new ArrayList<ArticleSearchResult>();
+	public static List<Article> search(String searchExpr, List<Article> articles){
+		List<ArticleSearchResult> searchResults = new ArrayList<ArticleSearchResult>();
 		int relevance = -1;
 		searchExpr = searchExpr.toLowerCase();
 		
@@ -113,11 +113,17 @@ public class Article {
 			}
 			
 			if ( relevance >= 0 ){
-				result.add(new ArticleSearchResult(a, relevance));
+				searchResults.add(new ArticleSearchResult(a, relevance));
 			}
 		}
 		
-		Collections.sort(result);
+		Collections.sort(searchResults);
+		
+		int numResults = searchResults != null ? searchResults.size() : 0;
+		List<Article> result = new ArrayList<Article>(numResults);
+		for (int i=0; i < numResults; i++){
+			result.add(searchResults.get(i).article);
+		}
 		
 		return result;
 	}
