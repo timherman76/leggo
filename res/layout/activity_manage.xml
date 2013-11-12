@@ -37,7 +37,7 @@
                android:layout_width="wrap_content"
                android:layout_height="32dp"
                android:onClick="addFeed"
-               android:text="@string/Go"
+               android:text="@string/add_feed"
                android:textSize="12sp" />
         
     </LinearLayout>
