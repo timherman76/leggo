@@ -16,6 +16,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
@@ -49,32 +52,73 @@ public class MainActivity extends Activity {
 
 	private String currentAccountName;
 	public static List<Article> articles;
-	
+
 	public static boolean shouldRestart;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		context = this;
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        editor = prefs.edit();
-        
-        
-        Theme.setPrefTheme(this);
-        
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		editor = prefs.edit();
+
+		Theme.setPrefTheme(this);
+
 		loadArticles();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
 
 		setContentView(R.layout.activity_main);
-		
+
 		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
 		refreshBar.setText(df.format(now).toString());
-		
+
 		shouldRestart = false;
 
+		if (Utils.networkAvailability(this) == true) {
+			AccountManager accountManager = AccountManager
+					.get(getApplicationContext());
+			Account[] accounts = accountManager.getAccountsByType("com.google");
+
+			// If for some reason, your account was deleted, set account to None
+			if (accounts.length == 0) {
+				editor.putString("account_selection", "None");
+				editor.commit();
+			}
+
+			currentAccountName = prefs
+					.getString("account_selection", "default");
+
+			Toast.makeText(context,
+					"Currently logged in to " + currentAccountName,
+					Toast.LENGTH_SHORT).show();
+
+			// If there is no account, send user to settings
+			if (currentAccountName.equals("None")
+					|| currentAccountName.equals("default")) {
+				Utils.noAccountAlert(this);
+			} else {
+				// Find index where account is
+				int accountIndex = 0;
+				for (Account account : accounts) {
+					if (account.name.equals(currentAccountName)) {
+						// Found account, revalidate here
+						AuthCookie.revalidateCookie(accountIndex, this);
+					}
+					accountIndex++;
+				}
+
+				if (accountIndex < accounts.length) {
+					// Account doesn't exist anymore for some reason.
+					editor.putString("account_selection", "None");
+					editor.commit();
+					Utils.noAccountAlert(this);
+				}
+			}
+
+		}
 	}
 
 	@Override
@@ -112,61 +156,52 @@ public class MainActivity extends Activity {
 							.getText().toString(), articles);
 					articles = Article.GetArticles(results);
 					listArticles();
-					/*Log.d("LOLOL", v.getText().toString());
-					LinearLayout linearLayout = (LinearLayout) findViewById(R.id.article_list);
-					if (((LinearLayout) linearLayout).getChildCount() > 0)
-						((LinearLayout) linearLayout).removeAllViews();
-					LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT, 0.10f);
-					LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT,
-							LayoutParams.WRAP_CONTENT, 0.90f);
-					for (int i = 0; i < 2 * results.size(); i += 2) {
-						LinearLayout articleScroll = (LinearLayout) findViewById(R.id.article_list);
-						LinearLayout currArticle = new LinearLayout(
-								getBaseContext());
-						currArticle.setOrientation(LinearLayout.HORIZONTAL);
-						currArticle.setPadding(5, 5, 5, 5);
-						Button articleName = new Button(getBaseContext());
-						articleName.setId(i);
-						articleName.setText((CharSequence) (results.get(i / 2).article
-								.getTitle()));
-						articleName.setGravity(Gravity.LEFT);
-						articleName.setBackground(getBaseContext()
-								.getResources().getDrawable(
-										R.drawable.textlines));
-						articleName
-								.setOnClickListener(new View.OnClickListener() {
-									public void onClick(View v) {
-										int id = v.getId();
-										if (id % 2 == 0) {
-											Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
-											startActivity(browserIntent);
-										}
-									}
-								});
-						ImageButton peek = new ImageButton(getBaseContext());					
-						peek.setId(i + 1);
-						peek.setBackground(getBaseContext().getResources()
-								.getDrawable(R.drawable.ic_read));
-						peek.setOnClickListener(new View.OnClickListener() {
-							public void onClick(View v) {
-								int id = v.getId();
-								if (id % 2 == 1) {
-									Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
-									startActivity(browserIntent);
-
-								}
-							}
-						});
-						peek.setLayoutParams(param2);
-						currArticle.addView(articleName);
-						currArticle.addView(peek);
-						articleScroll.addView(currArticle);
-
-					}
-					*/
+					/*
+					 * Log.d("LOLOL", v.getText().toString()); LinearLayout
+					 * linearLayout = (LinearLayout)
+					 * findViewById(R.id.article_list); if (((LinearLayout)
+					 * linearLayout).getChildCount() > 0) ((LinearLayout)
+					 * linearLayout).removeAllViews(); LinearLayout.LayoutParams
+					 * param = new LinearLayout.LayoutParams(
+					 * LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
+					 * 0.10f); LinearLayout.LayoutParams param2 = new
+					 * LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT,
+					 * LayoutParams.WRAP_CONTENT, 0.90f); for (int i = 0; i < 2
+					 * * results.size(); i += 2) { LinearLayout articleScroll =
+					 * (LinearLayout) findViewById(R.id.article_list);
+					 * LinearLayout currArticle = new LinearLayout(
+					 * getBaseContext());
+					 * currArticle.setOrientation(LinearLayout.HORIZONTAL);
+					 * currArticle.setPadding(5, 5, 5, 5); Button articleName =
+					 * new Button(getBaseContext()); articleName.setId(i);
+					 * articleName.setText((CharSequence) (results.get(i /
+					 * 2).article .getTitle()));
+					 * articleName.setGravity(Gravity.LEFT);
+					 * articleName.setBackground(getBaseContext()
+					 * .getResources().getDrawable( R.drawable.textlines));
+					 * articleName .setOnClickListener(new
+					 * View.OnClickListener() { public void onClick(View v) {
+					 * int id = v.getId(); if (id % 2 == 0) { Intent
+					 * browserIntent = new Intent(Intent.ACTION_VIEW,
+					 * Uri.parse(articles.get(id/2).getURL()));
+					 * startActivity(browserIntent); } } }); ImageButton peek =
+					 * new ImageButton(getBaseContext()); peek.setId(i + 1);
+					 * peek.setBackground(getBaseContext().getResources()
+					 * .getDrawable(R.drawable.ic_read));
+					 * peek.setOnClickListener(new View.OnClickListener() {
+					 * public void onClick(View v) { int id = v.getId(); if (id
+					 * % 2 == 1) { Intent browserIntent = new
+					 * Intent(Intent.ACTION_VIEW,
+					 * Uri.parse(articles.get(id/2).getURL()));
+					 * startActivity(browserIntent);
+					 * 
+					 * } } }); peek.setLayoutParams(param2);
+					 * currArticle.addView(articleName);
+					 * currArticle.addView(peek);
+					 * articleScroll.addView(currArticle);
+					 * 
+					 * }
+					 */
 					ActionBar actionBar = getActionBar();
 					actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 							| ActionBar.DISPLAY_SHOW_HOME);
@@ -194,65 +229,16 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		if (shouldRestart == true)
-		{
+
+		if (shouldRestart == true) {
 			Utils.restartActivity(this);
 			shouldRestart = false;
 		}
-		
+
 		// Check for network every time activity is resumed
-		if (Utils.networkAvailability(this) == false) 
-		{
+		if (Utils.networkAvailability(this) == false) {
 			Utils.noNetworkAlert(this);
-		} 
-		else {
-			AccountManager accountManager = AccountManager
-					.get(getApplicationContext());
-			Account[] accounts = accountManager
-					.getAccountsByType("com.google");
-			
-			// If for some reason, your account was deleted, set account to None
-			if (accounts.length == 0)
-			{
-				editor.putString("account_selection", "None");
-				editor.commit();
-			}
-			
-			currentAccountName = prefs
-					.getString("account_selection", "default");
-			
-
-			Toast.makeText(context,
-					"Currently logged in to " + currentAccountName,
-					Toast.LENGTH_SHORT).show();
-			
-			// If there is no account, send user to settings
-			if (currentAccountName.equals("None")
-					|| currentAccountName.equals("default")) {
-				Utils.noAccountAlert(this);
-			} 
-			else {
-				// Find index where account is
-				int accountIndex = 0;
-				for (Account account : accounts) {
-					if (account.name.equals(currentAccountName)) {
-						// Found account, revalidate here
-					}
-					accountIndex++;
-				}
-
-				if (accountIndex < accounts.length) {
-					// Account doesn't exist anymore for some reason.
-					editor.putString("account_selection", "None");
-					editor.commit();
-					Utils.noAccountAlert(this);
-				}
-			}
-
 		}
-
-
 	}
 
 	private void loadArticles() {
@@ -268,7 +254,7 @@ public class MainActivity extends Activity {
 		if (articles != null) {
 			Log.d("ARTICLES", "Here " + articles.size());
 			LinearLayout articleScroll = (LinearLayout) findViewById(R.id.article_list);
-			if ((articleScroll).getChildCount() > 0) //clear list of articles
+			if ((articleScroll).getChildCount() > 0) // clear list of articles
 				(articleScroll).removeAllViews();
 			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
@@ -291,7 +277,9 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 0) {
-							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
+							Intent browserIntent = new Intent(
+									Intent.ACTION_VIEW, Uri.parse(articles.get(
+											id / 2).getURL()));
 							startActivity(browserIntent);
 						}
 					}
@@ -305,7 +293,9 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 1) {
-							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(articles.get(id/2).getURL()));
+							Intent browserIntent = new Intent(
+									Intent.ACTION_VIEW, Uri.parse(articles.get(
+											id / 2).getURL()));
 							startActivity(browserIntent);
 						}
 					}
@@ -361,21 +351,23 @@ public class MainActivity extends Activity {
 		return result;
 	}
 
-	protected class GetArticles extends AsyncTask<GetArticlesCommand, Integer, List<Article>> {
+	protected class GetArticles extends
+			AsyncTask<GetArticlesCommand, Integer, List<Article>> {
 		private Context c;
 		private ProgressDialog dialog;
-		public GetArticles(Context context){
+
+		public GetArticles(Context context) {
 			c = context;
 			dialog = new ProgressDialog(c);
 			dialog.setMessage("Loading Articles");
 			dialog.show();
 		}
-		
+
 		@Override
-		protected void onPreExecute(){
-			
+		protected void onPreExecute() {
+
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		protected List<Article> doInBackground(GetArticlesCommand... params) {
@@ -395,17 +387,17 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onPostExecute(List<Article> result) {
 			if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
+				dialog.dismiss();
+			}
 
 			Log.d("ARTICLES", "On Post Execute " + result.size());
 			MainActivity.articles = result;
 			listArticles();
 		}
 	}
-	
+
 	@Override
-	public void onConfigurationChanged(Configuration newConfig){
+	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		setContentView(R.layout.activity_main);
 		listArticles();

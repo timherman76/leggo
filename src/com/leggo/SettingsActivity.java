@@ -51,13 +51,11 @@ public class SettingsActivity extends PreferenceActivity {
 
 	private String ACCOUNT_SELECTION = "account_selection";
 	private String NO_ACCOUNT_NAME = "None";
-	private String APP_AUTH_URL = "http://simplecta.appspot.com/_ah/login?continue=http://localhost/&auth=";
 
 	private String[] idRequests;
 	private int id;
 
 	private String auth_token;
-	private String cookie;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -241,7 +239,7 @@ public class SettingsActivity extends PreferenceActivity {
 					accountSelectionPref.setSummary("Logged in as: " + accountName);
 
 					// Get and set cookie into preferences
-					getCookie(auth_token);
+					AuthCookie.getCookie(auth_token,context);
 
 				} else {
 					// Send permission prompt intent.
@@ -312,50 +310,5 @@ public class SettingsActivity extends PreferenceActivity {
 			}
 		}
 
-	}
-
-	private void getCookie(final String authToken) {
-		new Thread(new Runnable() {
-			public void run() {
-				String href = APP_AUTH_URL + authToken;
-
-				DefaultHttpClient httpclient = new DefaultHttpClient();
-				final HttpParams params = new BasicHttpParams();
-
-				// Don't follow redirects
-				HttpClientParams.setRedirecting(params, false);
-				httpclient.setParams(params);
-				HttpGet httpget = new HttpGet(href);
-				try {
-					HttpResponse response = httpclient.execute(httpget);
-					HttpEntity entity = response.getEntity();
-					if (entity != null) {
-						entity.consumeContent();
-					}
-					// Get all the cookies
-					List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-					if (cookies.isEmpty()) {
-						Log.d(TAG, "No Cookies");
-					} else {
-						// Search for the SACSID cookie and store it
-						for (int i = 0; i < cookies.size(); i++) {
-							Cookie c = cookies.get(i);
-							if (c.getName().contentEquals("ACSID")) {
-								Log.d(TAG, "ACSID Found");
-								cookie = c.getValue();
-								Log.d(TAG, "Cookie set to: " + cookie);
-								editor.putString("cookie", cookie);
-								editor.commit();
-							}
-						}
-					}
-				} catch (ClientProtocolException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
-		}).start();
 	}
 }
