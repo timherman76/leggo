@@ -17,8 +17,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,9 +35,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.leggo.parsing.AddFeedCommand;
-import com.leggo.parsing.GetFeedsCommand;
-import com.leggo.parsing.UnsubscribeCommand;
+import com.leggo.parsing.*;
 
 public class ManageActivity extends Activity {
 	
@@ -81,16 +77,10 @@ public class ManageActivity extends Activity {
 		return true;
 	}
 
-	private boolean networkAvailability() {
-		ConnectivityManager CM = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo active = CM.getActiveNetworkInfo();
-		return active != null && active.isConnected();
-	}
-
 	@SuppressWarnings("unchecked")
 	private void loadFeeds() {
 		// File output = new File(filesDir, "feeds.htm");
-		if (networkAvailability()) // until login is taken care of
+		if (Utils.networkAvailability(this)) // until login is taken care of
 		{
 			GetFeeds get = new GetFeeds(this);
 			GetFeedsCommand command = new GetFeedsCommand();
@@ -98,28 +88,58 @@ public class ManageActivity extends Activity {
 		}
 	}
 
-	public void addFeed() {
-		// TODO: change to use Tim's code.
+	@SuppressWarnings("unchecked")
+	private void searchFeeds(String searchText) {
+		// File output = new File(filesDir, "feeds.htm");
+		if (Utils.networkAvailability(this)) // until login is taken care of
+		{
+			SearchFeeds get = new SearchFeeds(this, searchText);
+			FeedSearchCommand command = new FeedSearchCommand();
+			get.execute(command);
+		}
+	}
+
+	
+	public void onEnterSearchText(View v) {
 		EditText uri = (EditText) findViewById(R.id.add_feed_uri);
 		String text = uri.getText().toString();
+		
 		if (text == null || text.isEmpty()) {
 			Toast warning = Toast.makeText(this, "Please enter a feed url or search expression.", Toast.LENGTH_SHORT);
 			warning.show();
 			return;
-		} 
+		}
+		
+		
+		if(text.startsWith("http://") || text.startsWith("https://"))
+		{
+			//if user entered a link then try to add feed
+			addFeed(text);
+		}
+		else
+		{
+			//assume user was trying to search for feeds...
+			searchFeeds(text);
+		}
+		
+	}
+	
+	public void addFeed(String feedUrl) {
+		
 		String addlink;
 		try {
-			addlink = ("addRSS/?url=" + URLEncoder.encode(text, "UTF-8"));
+			addlink = ("addRSS/?url=" + URLEncoder.encode(feedUrl, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			return;
 		}
-		if (networkAvailability()) {
+		if (Utils.networkAvailability(this)) {
 			AddFeedCommand addMe = new AddFeedCommand(addlink);
 			AddFeed get = new AddFeed();
 			get.execute(addMe);
 
 			loadFeeds();
+			MainActivity.shouldRefresh = true;
 		} else {
 			Toast warning = Toast.makeText(this, "Please connect to the internet to add a feed.", Toast.LENGTH_SHORT);
 			warning.show();
@@ -150,8 +170,7 @@ public class ManageActivity extends Activity {
 				feedName.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
-						if (id == R.id.add_feed) addFeed();
-						else if (id % 2 == 0) viewFeed(allFeeds.get(id / 2));
+						viewFeed(allFeeds.get(id / 2));
 					}
 				});
 				feedName.setLayoutParams(param);
@@ -163,15 +182,14 @@ public class ManageActivity extends Activity {
 				unsubscribe.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
-						if (id == R.id.add_feed) addFeed();
-						else if (id % 2 == 1){
-							String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
-							UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
-							RemoveFeed remove = new RemoveFeed();
-							remove.execute(unsub);
-							allFeeds.remove((id-1)/2);
-							listFeeds();
-						}
+						String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
+						UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
+						RemoveFeed remove = new RemoveFeed();
+						remove.execute(unsub);
+						allFeeds.remove((id-1)/2);
+						MainActivity.shouldRefresh=true;
+						listFeeds();
+						
 					}
 				});
 				currFeed.addView(feedName);
@@ -231,6 +249,53 @@ public class ManageActivity extends Activity {
 		// TODO: implement this. Might need to add a new activity.
 	}
 
+	protected class SearchFeeds extends AsyncTask<FeedSearchCommand, Integer, List<Feed>> {
+		Context c;
+		ProgressDialog dialog;
+		String searchText;
+		
+		public SearchFeeds(Context context, String searchText){
+			c = context;
+			dialog = new ProgressDialog(c);
+			this.searchText = searchText;
+		}
+		
+		
+		@Override
+		public void onPreExecute(){
+			dialog.setMessage("Loading Feeds");
+			dialog.show();
+		}
+		@SuppressWarnings("unchecked")
+		@Override
+		protected List<Feed> doInBackground(FeedSearchCommand... params) {
+			FeedSearchCommand get = params[0];
+			List<Feed> allFeeds = null;
+			try {
+				allFeeds = (List<Feed>) get.parseData(searchText);
+				Log.d("FEEDS", "In try " + allFeeds.size());
+			} catch (IOException e) {
+				Log.d("FEEDS", "IOException caught");
+				return null;
+			}
+			return allFeeds;
+		}
+
+		@Override
+		protected void onPostExecute(List<Feed> result) {
+			if(dialog.isShowing()) {
+				dialog.dismiss();
+			}
+			Log.d("FEEDS", "On Post Execute " + result.size());
+			ManageActivity.allFeeds = result;
+			listFeeds();
+
+		}
+	}
+
+
+	
+	
 	protected class GetFeeds extends AsyncTask<GetFeedsCommand, Integer, List<Feed>> {
 		Context c;
 		ProgressDialog dialog;

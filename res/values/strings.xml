@@ -13,7 +13,7 @@
     <string name="rss_feed">RSS</string>
     <string name="atom_feed">Atom</string>
     <string name="add_feed">Go</string>
-    <string name="add_feed_hint">Enter Feed URL</string>
+    <string name="add_feed_hint">Search for feeds</string>
     <string name="search">Search</string>
     <string name="refresh">Refresh</string>
     <string name="articles_header">Articles</string>

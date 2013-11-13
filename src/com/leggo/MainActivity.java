@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
 	public static List<Article> articles;
 
 	public static boolean shouldRestart;
+	public static boolean shouldRefresh;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,7 @@ public class MainActivity extends Activity {
 		refreshBar.setText(df.format(now).toString());
 
 		shouldRestart = false;
+		shouldRefresh = false;
 
 		if (Utils.networkAvailability(this) == true) {
 			AccountManager accountManager = AccountManager
@@ -182,6 +184,13 @@ public class MainActivity extends Activity {
 		if (shouldRestart == true) {
 			Utils.restartActivity(this);
 			shouldRestart = false;
+		}
+		
+		if (shouldRefresh == true) {
+			GetArticlesCommand refresh = new GetArticlesCommand();
+			GetArticles get = new GetArticles(this);
+			get.execute(refresh);
+			shouldRefresh = false;
 		}
 
 		// Check for network every time activity is resumed

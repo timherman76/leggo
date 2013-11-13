@@ -70,6 +70,9 @@ public class SettingsActivity extends PreferenceActivity {
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				// Only listen on the account selection preference
 				if (preference.getKey().equals(ACCOUNT_SELECTION)) {
+					
+					MainActivity.shouldRefresh = true;
+					
 					// Set accountName a newValue
 					String accountName = (String) newValue;
 
