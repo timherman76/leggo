@@ -9,13 +9,13 @@ import java.util.List;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActionBar;
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,13 +26,17 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+import android.text.TextUtils;
 
 import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
@@ -45,6 +49,8 @@ public class MainActivity extends Activity {
 
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor editor;
+	
+	int fontSize;
 
 	private String currentAccountName;
 	public static List<Article> articles;
@@ -60,6 +66,8 @@ public class MainActivity extends Activity {
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		editor = prefs.edit();
+		
+		fontSize = 16;
 
 		Theme.setPrefTheme(this);
 
@@ -180,6 +188,8 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		fontSize = Integer.parseInt(prefs.getString("fontSize", "16"));
 
 		if (shouldRestart == true) {
 			Utils.restartActivity(this);
@@ -214,23 +224,47 @@ public class MainActivity extends Activity {
 			LinearLayout articleScroll = (LinearLayout) findViewById(R.id.article_list);
 			if ((articleScroll).getChildCount() > 0) // clear list of articles
 				(articleScroll).removeAllViews();
-			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
-			LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.90f);
+
+			// CurrArticle Layout Params
+			TableLayout.LayoutParams currArticleParam = new TableLayout.LayoutParams(
+					TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
+			
+			// Article Name Params
+			TableRow.LayoutParams articleNameParam = new TableRow.LayoutParams(
+				TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+			articleNameParam.setMargins(10, 0, 10, 0);
+
+			// Feed Name Params
+			TableLayout.LayoutParams feedNameParam = new TableLayout.LayoutParams(
+					RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT);
+			feedNameParam.setMargins(10, 1, 10, 5);
+
+			// Peek Button Params
+			TableRow.LayoutParams peekButtonParam = new TableRow.LayoutParams(
+					TableRow.LayoutParams.WRAP_CONTENT,
+					TableRow.LayoutParams.WRAP_CONTENT);
+			peekButtonParam.setMargins(10, 10, 10, 10);
+			
+			// Divider Params
+			RelativeLayout.LayoutParams dividerParam = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.MATCH_PARENT, 1);
+
 			for (int i = 0; i < 2 * articles.size(); i += 2) {
-				LinearLayout currArticle = new LinearLayout(this);
-				currArticle.setOrientation(LinearLayout.HORIZONTAL);
-				currArticle.setPadding(100000, 100000, 100000, 100000);
-				currArticle.setBackground(this.getResources().getDrawable(
-						R.drawable.box));
-				Button articleName = new Button(this);
+				TableLayout currArticle = new TableLayout(this);
+				TableRow tableRow1 = new TableRow(this);
+				// currArticle.setBackground(this.getResources().getDrawable(R.drawable.box));
+				TextView articleName = new TextView(this);
 				articleName.setId(i);
 				articleName.setText((CharSequence) (articles.get(i / 2)
 						.getTitle()));
-				articleName.setBackground(getResources().getDrawable(
-						R.drawable.roundbutton));
+				articleName.setBackgroundResource(0);
+				articleName.setTextSize(fontSize);
+				articleName.setMaxLines(2);
+				articleName.setEllipsize(TextUtils.TruncateAt.END);
 				articleName.setGravity(Gravity.LEFT);
+				articleName.setPadding(5, 5, 5, 5);
+				articleName.setHorizontallyScrolling(false);
 				articleName.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
@@ -242,12 +276,22 @@ public class MainActivity extends Activity {
 						}
 					}
 				});
-				articleName.setLayoutParams(param);
-				ImageButton read = new ImageButton(this);
-				read.setId(i + 1);
-				read.setBackground(getBaseContext().getResources().getDrawable(
-						R.drawable.ic_read));
-				read.setOnClickListener(new View.OnClickListener() {
+
+				TextView feedName = new TextView(this);
+				feedName.setId(i + 1000);
+				feedName.setText((CharSequence) (articles.get(i / 2).getFeed()
+						.getName()));
+				feedName.setTextSize(10);
+				feedName.setGravity(Gravity.RIGHT);
+				feedName.setTextColor(Color.parseColor("#616161"));
+
+				ImageButton peekButton = new ImageButton(this);
+				peekButton.setId(i + 1);
+				peekButton.setBackground(getBaseContext().getResources()
+						.getDrawable(R.drawable.ic_read));
+				peekButton.setScaleType(ScaleType.FIT_CENTER);
+
+				peekButton.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 1) {
@@ -258,10 +302,18 @@ public class MainActivity extends Activity {
 						}
 					}
 				});
-				read.setLayoutParams(param2);
-				currArticle.addView(articleName);
-				currArticle.addView(read);
-				articleScroll.addView(currArticle);
+				
+
+				View divider = new View(this);
+				divider.setBackgroundColor(Color.parseColor("#9E9E9E"));
+
+				articleScroll.addView(currArticle, currArticleParam);
+				currArticle.addView(tableRow1, currArticleParam);
+				tableRow1.addView(peekButton, peekButtonParam);
+				tableRow1.addView(articleName, articleNameParam);
+				currArticle.addView(feedName, feedNameParam);
+				currArticle.addView(divider, dividerParam);
+
 			}
 		}
 	}
