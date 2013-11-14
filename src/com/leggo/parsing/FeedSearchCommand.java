@@ -52,6 +52,7 @@ public class FeedSearchCommand extends RssSearchHubCommand {
 			feed.setName(feedElem.text());
 			String feedURL = feedElem.attr("href");
 			feed.setURL(feedURL);
+			feed.setAdded(false);
 			result.add(feed);
 		}
 		

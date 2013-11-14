@@ -160,41 +160,78 @@ public class ManageActivity extends Activity {
 			if (((LinearLayout) linearLayout).getChildCount() > 0) ((LinearLayout) linearLayout).removeAllViews();
 			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
 				Feed feed = allFeeds.get(i / 2);
-				LinearLayout currFeed = new LinearLayout(this);
-				currFeed.setOrientation(LinearLayout.HORIZONTAL);
-				Button feedName = new Button(this);
-				feedName.setId(i);
-				feedName.setText((CharSequence) (feed.getName()));
-				feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
-				feedName.setGravity(Gravity.LEFT);
-				feedName.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						int id = v.getId();
-						viewFeed(allFeeds.get(id / 2));
-					}
-				});
-				feedName.setLayoutParams(param);
-				ImageButton unsubscribe = new ImageButton(this);
-				unsubscribe.setId(i + 1);
-				Drawable icon = getResources().getDrawable(R.drawable.ic_menu_delete);
-				unsubscribe.setBackground(icon);
-				unsubscribe.setLayoutParams(param2);
-				unsubscribe.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						int id = v.getId();
-						String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
-						UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
-						RemoveFeed remove = new RemoveFeed();
-						remove.execute(unsub);
-						allFeeds.remove((id-1)/2);
-						MainActivity.shouldRefresh=true;
-						listFeeds();
-						
-					}
-				});
-				currFeed.addView(feedName);
-				currFeed.addView(unsubscribe);
-				feedScroll.addView(currFeed);
+				if(feed.isAdded()){
+					LinearLayout currFeed = new LinearLayout(this);
+					currFeed.setOrientation(LinearLayout.HORIZONTAL);
+					Button feedName = new Button(this);
+					feedName.setId(i);
+					feedName.setText((CharSequence) (feed.getName()));
+					feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
+					feedName.setGravity(Gravity.LEFT);
+					feedName.setOnClickListener(new View.OnClickListener() {
+						public void onClick(View v) {
+							int id = v.getId();
+							viewFeed(allFeeds.get(id / 2));
+						}
+					});
+					feedName.setLayoutParams(param);
+					ImageButton unsubscribe = new ImageButton(this);
+					unsubscribe.setId(i + 1);
+					Drawable icon = getResources().getDrawable(R.drawable.ic_menu_delete);
+					unsubscribe.setBackground(icon);
+					unsubscribe.setLayoutParams(param2);
+					unsubscribe.setOnClickListener(new View.OnClickListener() {
+						public void onClick(View v) {
+							int id = v.getId();
+							String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
+							UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
+							RemoveFeed remove = new RemoveFeed();
+							remove.execute(unsub);
+							allFeeds.remove((id-1)/2);
+							MainActivity.shouldRefresh=true;
+							listFeeds();
+							
+						}
+					});
+					currFeed.addView(feedName);
+					currFeed.addView(unsubscribe);
+					feedScroll.addView(currFeed);
+				}
+				else {
+					LinearLayout currFeed = new LinearLayout(this);
+					currFeed.setOrientation(LinearLayout.HORIZONTAL);
+					Button feedName = new Button(this);
+					feedName.setId(i);
+					feedName.setText((CharSequence) (feed.getName()));
+					feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
+					feedName.setGravity(Gravity.LEFT);
+					feedName.setOnClickListener(new View.OnClickListener() {
+						public void onClick(View v) {
+							int id = v.getId();
+							viewFeed(allFeeds.get(id / 2));
+						}
+					});
+					feedName.setLayoutParams(param);
+					ImageButton addFeed = new ImageButton(this);
+					addFeed.setId(i + 1);
+					Drawable icon = getResources().getDrawable(R.drawable.btn_check_on);
+					addFeed.setBackground(icon);
+					addFeed.setLayoutParams(param2);
+					addFeed.setOnClickListener(new View.OnClickListener() {
+						public void onClick(View v) {
+							int id = v.getId();
+							String addFeedURL = allFeeds.get((id-1)/2).getURL();
+							addFeed(addFeedURL);
+							MainActivity.shouldRefresh=true;
+							listFeeds();
+							
+						}
+					});
+					currFeed.addView(feedName);
+					currFeed.addView(addFeed);
+					feedScroll.addView(currFeed);
+				}
+				
 			}
 		}
 	}

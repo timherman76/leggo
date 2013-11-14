@@ -61,6 +61,7 @@ public class GetFeedsCommand extends SimplectaCommand {
 			int queryStart = unsubURL.indexOf("?") + 1;
 			String feedKey = unsubURL.substring(queryStart);
 			feed.setKey(feedKey);
+			feed.setAdded(true);
 			result.add(feed);
 			
 			//store the feed in our map

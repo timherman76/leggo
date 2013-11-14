@@ -10,6 +10,7 @@ public class Feed {
 	protected String Name;
 	protected String Key;
 	protected FeedType Type;
+	protected boolean isAdded;
 	
 	public Feed(){
 		
@@ -18,15 +19,24 @@ public class Feed {
 	public Feed(String url,
 				String name,
 				String key,
-				FeedType type){
+				FeedType type, boolean isAdded){
 		this.setURL(url);
 		this.setName(name);
 		this.setKey(key);
 		this.setType(type);
+		this.setAdded(isAdded);
 	}
 
 	public String getURL() {
 		return URL;
+	}
+	
+	public void setAdded(boolean isAdded){
+		this.isAdded = isAdded;
+	}
+	
+	public boolean isAdded(){
+		return this.isAdded;
 	}
 
 	public void setURL(String url) {
