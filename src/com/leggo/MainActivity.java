@@ -57,6 +57,8 @@ public class MainActivity extends Activity {
 
 	public static boolean shouldRestart;
 	public static boolean shouldRefresh;
+	
+	public static LinearLayout articleScroll;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,6 @@ public class MainActivity extends Activity {
 
 		Theme.setPrefTheme(this);
 
-		loadArticles();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
 
@@ -82,6 +83,8 @@ public class MainActivity extends Activity {
 
 		shouldRestart = false;
 		shouldRefresh = false;
+		
+		articleScroll = (LinearLayout) findViewById(R.id.article_list);
 
 		if (Utils.networkAvailability(this) == true) {
 			AccountManager accountManager = AccountManager
@@ -111,6 +114,7 @@ public class MainActivity extends Activity {
 				for (Account account : accounts) {
 					if (account.name.equals(currentAccountName)) {
 						// Found account, revalidate here
+						loadArticles();
 						AuthCookie.revalidateCookie(accountIndex, this);
 					}
 					accountIndex++;
@@ -196,7 +200,15 @@ public class MainActivity extends Activity {
 			shouldRestart = false;
 		}
 		
-		if (shouldRefresh == true) {
+
+		currentAccountName = prefs
+				.getString("account_selection", "default");
+		if (currentAccountName.equals("None")
+				|| currentAccountName.equals("default")) {
+			Utils.noAccountAlert(this);
+		}
+		
+		else if (shouldRefresh == true) {
 			GetArticlesCommand refresh = new GetArticlesCommand();
 			GetArticles get = new GetArticles(this);
 			get.execute(refresh);
@@ -221,7 +233,7 @@ public class MainActivity extends Activity {
 	public void listArticles() {
 		if (articles != null) {
 			Log.d("ARTICLES", "Here " + articles.size());
-			LinearLayout articleScroll = (LinearLayout) findViewById(R.id.article_list);
+			
 			if ((articleScroll).getChildCount() > 0) // clear list of articles
 				(articleScroll).removeAllViews();
 

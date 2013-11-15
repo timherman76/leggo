@@ -20,6 +20,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class SettingsActivity extends PreferenceActivity {
@@ -70,6 +71,11 @@ public class SettingsActivity extends PreferenceActivity {
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				// Only listen on the account selection preference
 				if (preference.getKey().equals(ACCOUNT_SELECTION)) {
+					
+			
+				
+					if ((MainActivity.articleScroll).getChildCount() > 0)
+						(MainActivity.articleScroll).removeAllViews();
 					
 					MainActivity.shouldRefresh = true;
 					
