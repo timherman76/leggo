@@ -114,8 +114,8 @@ public class MainActivity extends Activity {
 				for (Account account : accounts) {
 					if (account.name.equals(currentAccountName)) {
 						// Found account, revalidate here
-						loadArticles();
 						AuthCookie.revalidateCookie(accountIndex, this);
+						loadArticles();
 					}
 					accountIndex++;
 				}
