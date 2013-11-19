@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -61,12 +62,15 @@ public class MainActivity extends Activity {
 	public static boolean shouldRefresh;
 	
 	public static LinearLayout articleScroll;
+	
+	protected static Vibrator myVib;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		context = this;
+		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		editor = prefs.edit();
@@ -283,6 +287,7 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 0) {
+							myVib.vibrate(50);
 							Article curr = articles.get(id/2);
 							Intent browserIntent = new Intent(
 									Intent.ACTION_VIEW, Uri.parse(curr.getURL()));
@@ -319,6 +324,7 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 1) {
+							myVib.vibrate(50);
 							Article curr = articles.get(id/2);
 							if(!curr.isRead()){
 								MarkReadCommand mark = new MarkReadCommand(curr.getKey());
