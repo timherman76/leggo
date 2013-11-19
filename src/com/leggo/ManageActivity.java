@@ -48,6 +48,10 @@ public class ManageActivity extends Activity {
 	public static boolean isAdded;
 	private Context context;
 	private Vibrator myVib;
+	
+	private int fontSize;
+	
+	public static boolean shouldRestart;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,8 @@ public class ManageActivity extends Activity {
 		loadFeeds();
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		Date now = new Date();
+		
+		shouldRestart = false;
 
 		setContentView(R.layout.activity_manage);
 
@@ -77,6 +83,19 @@ public class ManageActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.manage, menu);
 		return true;
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		fontSize = Integer.parseInt(prefs.getString("fontSize", "16"));
+
+		if (shouldRestart == true) {
+			Utils.restartActivity(this);
+			shouldRestart = false;
+		}
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -169,6 +188,7 @@ public class ManageActivity extends Activity {
 					Button feedName = new Button(this);
 					feedName.setId(i);
 					feedName.setText((CharSequence) (feed.getName()));
+					feedName.setTextSize(fontSize);
 					feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
 					feedName.setGravity(Gravity.LEFT);
 					feedName.setOnClickListener(new View.OnClickListener() {

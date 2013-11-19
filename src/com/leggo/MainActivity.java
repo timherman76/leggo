@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor editor;
 	
-	int fontSize;
+	private int fontSize;
 
 	private String currentAccountName;
 	public static List<Article> articles;
@@ -258,7 +258,7 @@ public class MainActivity extends Activity {
 					RelativeLayout.LayoutParams.WRAP_CONTENT);
 			feedNameParam.setMargins(10, 1, 10, 5);
 
-			// Peek Button Params
+			// Read Button Params
 			TableRow.LayoutParams readButtonParam = new TableRow.LayoutParams(
 					TableRow.LayoutParams.WRAP_CONTENT,
 					TableRow.LayoutParams.WRAP_CONTENT);

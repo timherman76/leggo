@@ -136,12 +136,14 @@ public class SettingsActivity extends PreferenceActivity {
 					{
 						Theme.changeTheme(SettingsActivity.this, Theme.THEME_DEFAULT);
 						MainActivity.shouldRestart = true;
+						ManageActivity.shouldRestart = true;
 						return true;
 					}
 					else
 					{
 						Theme.changeTheme(SettingsActivity.this, Theme.THEME_NIGHT);
 						MainActivity.shouldRestart = true;
+						ManageActivity.shouldRestart = true;
 						return true;
 					}
 				}

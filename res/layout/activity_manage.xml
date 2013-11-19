@@ -14,20 +14,20 @@
         android:gravity="right"
         android:paddingRight="5dp" />
 
-    <LinearLayout
+    <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/textlines"
-        android:orientation="horizontal"	
+        android:background="@drawable/textlines"	
         android:padding="5dp" >
-
+        
+        <TableRow>
            <EditText
                android:id="@+id/add_feed_uri"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:ems="10"
                android:hint="@string/add_feed_hint"
+               android:layout_weight="1"
                android:inputType="textUri"
                android:paddingLeft="10dp"
                android:paddingRight="12dp" />
@@ -39,8 +39,9 @@
                android:onClick="onEnterSearchText"
                android:text="@string/add_feed"
                android:textSize="12sp" />
+           </TableRow>
         
-    </LinearLayout>
+    </TableLayout>
 
     <TextView
         android:layout_width="wrap_content"
