@@ -20,7 +20,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class SettingsActivity extends PreferenceActivity {

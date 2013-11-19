@@ -3,6 +3,7 @@ package com.leggo;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,7 +31,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -41,7 +41,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.leggo.parsing.*;
+import com.leggo.parsing.AddFeedCommand;
+import com.leggo.parsing.FeedSearchCommand;
+import com.leggo.parsing.GetFeedsCommand;
+import com.leggo.parsing.UnsubscribeCommand;
 
 public class ManageActivity extends Activity {
 	
@@ -154,7 +157,9 @@ public class ManageActivity extends Activity {
 		
 		String addlink;
 		try {
-			addlink = ("addRSS/?url=" + URLEncoder.encode(feedUrl, "UTF-8"));
+			feedUrl =  URLDecoder.decode(feedUrl, "UTF-8");
+			feedUrl = URLEncoder.encode(feedUrl, "UTF-8");
+			addlink = ("addRSS/?url=" + feedUrl);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			return;

@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document;
 import android.util.Log;
 
 public class MarkReadCommand extends SimplectaCommand {
-	private String path;
+	
 	public MarkReadCommand(String key) {
 		super("markRead/?" + key);
 	}

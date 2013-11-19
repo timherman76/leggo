@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document;
 import android.util.Log;
 
 public class MarkUnreadCommand extends SimplectaCommand {
-	private String path;
+	
 
 	public MarkUnreadCommand(String key) {
 		super("markUnread/?" + key);	

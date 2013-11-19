@@ -9,8 +9,6 @@ import android.util.Log;
 
 public class AddFeedCommand extends SimplectaCommand {
 
-	private String path;
-
 	public AddFeedCommand(String passPath) {
 		super(passPath);
 		path = passPath;

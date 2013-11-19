@@ -2,7 +2,6 @@ package com.leggo.parsing;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +47,7 @@ public class FeedSearchCommand extends RssSearchHubCommand {
 		for (Element feedElem : feedElements){
 			Feed feed = new Feed();
 			String name = feedElem.attr("title");
-			name = URLDecoder.decode(name, "UTF-8");
-			feed.setName(feedElem.text());
+			feed.setName(name);
 			String feedURL = feedElem.attr("href");
 			feed.setURL(feedURL);
 			feed.setAdded(false);
