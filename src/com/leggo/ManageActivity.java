@@ -16,12 +16,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -32,6 +34,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -175,21 +180,38 @@ public class ManageActivity extends Activity {
 		if (allFeeds != null) {
 			Log.d("FEEDS", "Here " + allFeeds.size());
 			LinearLayout feedScroll = (LinearLayout) findViewById(R.id.feed_list);
-			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f);
-			LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.90f);
-			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.feed_list);
-			if (((LinearLayout) linearLayout).getChildCount() > 0) ((LinearLayout) linearLayout).removeAllViews();
+			
+			// CurrFeed Layout Params
+			TableLayout.LayoutParams currFeedParam = new TableLayout.LayoutParams(
+					TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
+			
+			// Feed Name Params
+			TableRow.LayoutParams feedNameParam = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f);
+			feedNameParam.setMargins(10, 0, 10, 0);
+			
+			// Button Params
+			TableRow.LayoutParams buttonParam = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			buttonParam.setMargins(10, 10, 10, 10);
+			
+			// Divider Params
+			RelativeLayout.LayoutParams dividerParam = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.MATCH_PARENT, 1);
+			
+			if (((LinearLayout) feedScroll).getChildCount() > 0) ((LinearLayout) feedScroll).removeAllViews();
 			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
 				Feed feed = allFeeds.get(i / 2);
 				if(feed.isAdded()){
 					myVib.vibrate(50);
-					LinearLayout currFeed = new LinearLayout(this);
-					currFeed.setOrientation(LinearLayout.HORIZONTAL);
-					Button feedName = new Button(this);
+					TableLayout currFeed = new TableLayout(this);
+					TableRow tableRow1 = new TableRow(this);
+					TextView feedName = new TextView(this);
 					feedName.setId(i);
 					feedName.setText((CharSequence) (feed.getName()));
 					feedName.setTextSize(fontSize);
-					feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
+					feedName.setSingleLine(true);
+					feedName.setEllipsize(TextUtils.TruncateAt.END);
+					feedName.setPadding(5, 5, 5, 5);
+					feedName.setHorizontallyScrolling(false);
 					feedName.setGravity(Gravity.LEFT);
 					feedName.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
@@ -197,12 +219,10 @@ public class ManageActivity extends Activity {
 							viewFeed(allFeeds.get(id / 2));
 						}
 					});
-					feedName.setLayoutParams(param);
 					ImageButton unsubscribe = new ImageButton(this);
 					unsubscribe.setId(i + 1);
 					Drawable icon = getResources().getDrawable(R.drawable.ic_menu_delete);
 					unsubscribe.setBackground(icon);
-					unsubscribe.setLayoutParams(param2);
 					unsubscribe.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
 							int id = v.getId();
@@ -217,17 +237,27 @@ public class ManageActivity extends Activity {
 							
 						}
 					});
-					currFeed.addView(feedName);
-					currFeed.addView(unsubscribe);
-					feedScroll.addView(currFeed);
+					View divider = new View(this);
+					divider.setBackgroundColor(Color.parseColor("#9E9E9E"));
+					
+					feedScroll.addView(currFeed, currFeedParam);
+					currFeed.addView(tableRow1, currFeedParam);
+					tableRow1.addView(feedName, feedNameParam);
+					tableRow1.addView(unsubscribe, buttonParam);
+					currFeed.addView(divider,dividerParam);
+					
 				}
 				else {
-					LinearLayout currFeed = new LinearLayout(this);
-					currFeed.setOrientation(LinearLayout.HORIZONTAL);
-					Button feedName = new Button(this);
+					TableLayout currFeed = new TableLayout(this);
+					TableRow tableRow1 = new TableRow(this);
+					TextView feedName = new TextView(this);
 					feedName.setId(i);
 					feedName.setText((CharSequence) (feed.getName()));
-					feedName.setBackground(getResources().getDrawable(R.drawable.roundbutton));
+					feedName.setTextSize(fontSize);
+					feedName.setSingleLine(true);
+					feedName.setEllipsize(TextUtils.TruncateAt.END);
+					feedName.setPadding(5, 5, 5, 5);
+					feedName.setHorizontallyScrolling(false);
 					feedName.setGravity(Gravity.LEFT);
 					feedName.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
@@ -236,12 +266,10 @@ public class ManageActivity extends Activity {
 							viewFeed(allFeeds.get(id / 2));
 						}
 					});
-					feedName.setLayoutParams(param);
 					ImageButton addFeed = new ImageButton(this);
 					addFeed.setId(i + 1);
 					Drawable icon = getResources().getDrawable(R.drawable.btn_check_on);
 					addFeed.setBackground(icon);
-					addFeed.setLayoutParams(param2);
 					addFeed.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
 							myVib.vibrate(50);
@@ -253,9 +281,14 @@ public class ManageActivity extends Activity {
 							
 						}
 					});
-					currFeed.addView(feedName);
-					currFeed.addView(addFeed);
-					feedScroll.addView(currFeed);
+					View divider = new View(this);
+					divider.setBackgroundColor(Color.parseColor("#9E9E9E"));
+					
+					feedScroll.addView(currFeed, currFeedParam);
+					currFeed.addView(tableRow1, currFeedParam);
+					tableRow1.addView(feedName, feedNameParam);
+					tableRow1.addView(addFeed, buttonParam);
+					currFeed.addView(divider, dividerParam);
 				}
 				
 			}
@@ -346,7 +379,8 @@ public class ManageActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(List<Feed> result) {
-			if(dialog.isShowing()) {
+			
+			if(dialog != null && dialog.isShowing()) {
 				dialog.dismiss();
 			}
 			Log.d("FEEDS", "On Post Execute " + result.size());
