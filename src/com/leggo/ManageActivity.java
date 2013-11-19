@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -46,6 +47,7 @@ public class ManageActivity extends Activity {
 	private SharedPreferences prefs;
 	public static boolean isAdded;
 	private Context context;
+	private Vibrator myVib;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,7 @@ public class ManageActivity extends Activity {
 		context = this;
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
+		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 		Theme.setPrefTheme(this);
 
 		filesDir = new File(sdCard + "/Android/data/com.leggo/files");
@@ -161,6 +163,7 @@ public class ManageActivity extends Activity {
 			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
 				Feed feed = allFeeds.get(i / 2);
 				if(feed.isAdded()){
+					myVib.vibrate(50);
 					LinearLayout currFeed = new LinearLayout(this);
 					currFeed.setOrientation(LinearLayout.HORIZONTAL);
 					Button feedName = new Button(this);
@@ -183,6 +186,7 @@ public class ManageActivity extends Activity {
 					unsubscribe.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
 							int id = v.getId();
+							myVib.vibrate(50);
 							String unsubURL = "unsubscribe/?" + allFeeds.get((id-1)/2).getKey();
 							UnsubscribeCommand unsub = new UnsubscribeCommand(unsubURL);
 							RemoveFeed remove = new RemoveFeed();
@@ -207,6 +211,7 @@ public class ManageActivity extends Activity {
 					feedName.setGravity(Gravity.LEFT);
 					feedName.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
+							myVib.vibrate(50);
 							int id = v.getId();
 							viewFeed(allFeeds.get(id / 2));
 						}
@@ -219,6 +224,7 @@ public class ManageActivity extends Activity {
 					addFeed.setLayoutParams(param2);
 					addFeed.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
+							myVib.vibrate(50);
 							int id = v.getId();
 							String addFeedURL = allFeeds.get((id-1)/2).getURL();
 							addFeed(addFeedURL);
