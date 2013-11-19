@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
-		refreshBar.setText(df.format(now).toString());
+		refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 
 		shouldRestart = false;
 		shouldRefresh = false;
@@ -185,7 +185,7 @@ public class MainActivity extends Activity {
 			get.execute(refresh);
 			Date now = new Date();
 			TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
-			refreshBar.setText(df.format(now).toString());
+			refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 			break;
 		}
 		return true;
