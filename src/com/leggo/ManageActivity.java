@@ -68,7 +68,7 @@ public class ManageActivity extends Activity {
 		setContentView(R.layout.activity_manage);
 
 		TextView refreshBar = (TextView) findViewById(R.id.manage_refresh_bar);
-		refreshBar.setText(df.format(now).toString());
+		refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 
 	}
 
@@ -279,7 +279,7 @@ public class ManageActivity extends Activity {
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 			Date now = new Date();
 			TextView refreshBar = (TextView) findViewById(R.id.manage_refresh_bar);
-			refreshBar.setText(df.format(now).toString());
+			refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 			break;
 		}
 		return true;
