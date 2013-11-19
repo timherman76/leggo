@@ -287,12 +287,15 @@ public class MainActivity extends Activity {
 							Intent browserIntent = new Intent(
 									Intent.ACTION_VIEW, Uri.parse(curr.getURL()));
 							startActivity(browserIntent);
-							if(/*AUTOMARKASREAD && !curr.isRead()*/false){ //TODO: Fix this conditional
+							boolean autoMarkAsRead = prefs.getBoolean("autoMarkAsRead", false);
+							if(autoMarkAsRead && !curr.isRead()){ //TODO: Fix this conditional
 								MarkReadCommand mark = new MarkReadCommand(curr.getKey());
 								MarkRead marktask = new MarkRead();
 								marktask.execute(mark);
 								curr.setRead(true);
 								articles.set(id/2,curr);
+								ImageButton associated = (ImageButton) findViewById(id+1);
+								associated.setBackground(getBaseContext().getResources().getDrawable(R.drawable.btn_check_on));
 							}
 						}
 					}
