@@ -40,6 +40,8 @@ import android.text.TextUtils;
 
 import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
+import com.leggo.parsing.MarkReadCommand;
+import com.leggo.parsing.MarkUnreadCommand;
 
 public class MainActivity extends Activity {
 
@@ -253,10 +255,10 @@ public class MainActivity extends Activity {
 			feedNameParam.setMargins(10, 1, 10, 5);
 
 			// Peek Button Params
-			TableRow.LayoutParams peekButtonParam = new TableRow.LayoutParams(
+			TableRow.LayoutParams readButtonParam = new TableRow.LayoutParams(
 					TableRow.LayoutParams.WRAP_CONTENT,
 					TableRow.LayoutParams.WRAP_CONTENT);
-			peekButtonParam.setMargins(10, 10, 10, 10);
+			readButtonParam.setMargins(10, 10, 10, 10);
 			
 			// Divider Params
 			RelativeLayout.LayoutParams dividerParam = new RelativeLayout.LayoutParams(
@@ -281,10 +283,17 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 0) {
+							Article curr = articles.get(id/2);
 							Intent browserIntent = new Intent(
-									Intent.ACTION_VIEW, Uri.parse(articles.get(
-											id / 2).getURL()));
+									Intent.ACTION_VIEW, Uri.parse(curr.getURL()));
 							startActivity(browserIntent);
+							if(/*AUTOMARKASREAD && !curr.isRead()*/false){ //TODO: Fix this conditional
+								MarkReadCommand mark = new MarkReadCommand(curr.getKey());
+								MarkRead marktask = new MarkRead();
+								marktask.execute(mark);
+								curr.setRead(true);
+								articles.set(id/2,curr);
+							}
 						}
 					}
 				});
@@ -297,20 +306,34 @@ public class MainActivity extends Activity {
 				feedName.setGravity(Gravity.RIGHT);
 				feedName.setTextColor(Color.parseColor("#616161"));
 
-				ImageButton peekButton = new ImageButton(this);
-				peekButton.setId(i + 1);
-				peekButton.setBackground(getBaseContext().getResources()
+				ImageButton readButton = new ImageButton(this);
+				readButton.setId(i + 1);
+				readButton.setBackground(getBaseContext().getResources()
 						.getDrawable(R.drawable.ic_read));
-				peekButton.setScaleType(ScaleType.FIT_CENTER);
+				readButton.setScaleType(ScaleType.FIT_CENTER);
 
-				peekButton.setOnClickListener(new View.OnClickListener() {
+				readButton.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 1) {
-							Intent browserIntent = new Intent(
-									Intent.ACTION_VIEW, Uri.parse(articles.get(
-											id / 2).getURL()));
-							startActivity(browserIntent);
+							Article curr = articles.get(id/2);
+							if(!curr.isRead()){
+								MarkReadCommand mark = new MarkReadCommand(curr.getKey());
+								MarkRead marktask = new MarkRead();
+								marktask.execute(mark);
+								curr.setRead(true);
+								articles.set(id/2,curr);
+								v.setBackground(getBaseContext().getResources().getDrawable(R.drawable.btn_check_on));
+							}
+							else {
+								MarkUnreadCommand mark = new MarkUnreadCommand(curr.getKey());
+								MarkUnread marktask = new MarkUnread();
+								marktask.execute(mark);
+								curr.setRead(false);
+								articles.set(id/2, curr);
+								v.setBackground(getBaseContext().getResources().getDrawable(R.drawable.ic_read));
+							}
+							
 						}
 					}
 				});
@@ -321,7 +344,7 @@ public class MainActivity extends Activity {
 
 				articleScroll.addView(currArticle, currArticleParam);
 				currArticle.addView(tableRow1, currArticleParam);
-				tableRow1.addView(peekButton, peekButtonParam);
+				tableRow1.addView(readButton, readButtonParam);
 				tableRow1.addView(articleName, articleNameParam);
 				currArticle.addView(feedName, feedNameParam);
 				currArticle.addView(divider, dividerParam);
@@ -415,6 +438,40 @@ public class MainActivity extends Activity {
 			Log.d("ARTICLES", "On Post Execute " + result.size());
 			MainActivity.articles = result;
 			listArticles();
+		}
+	}
+	
+	protected class MarkRead extends AsyncTask<MarkReadCommand, Integer, Boolean>{
+		@Override
+		protected Boolean doInBackground(MarkReadCommand... params){
+			MarkReadCommand mark = params[0];
+			try {
+				String c = prefs.getString("cookie", "default");
+				mark.parseData(c);
+				Log.d("ARTICLES", "In try " + articles.size());
+			} catch (IOException e) {
+				Log.d("ARTICLES", "IOException caught");
+				return false;
+			}
+			return true;
+			
+		}
+	}
+	
+	protected class MarkUnread extends AsyncTask<MarkUnreadCommand, Integer, Boolean>{
+		@Override
+		protected Boolean doInBackground(MarkUnreadCommand... params){
+			MarkUnreadCommand mark = params[0];
+			try {
+				String c = prefs.getString("cookie", "default");
+				mark.parseData(c);
+				Log.d("ARTICLES", "In try " + articles.size());
+			} catch (IOException e) {
+				Log.d("ARTICLES", "IOException caught");
+				return false;
+			}
+			return true;
+			
 		}
 	}
 
