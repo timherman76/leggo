@@ -48,8 +48,6 @@ import com.leggo.parsing.UnsubscribeCommand;
 
 public class ManageActivity extends Activity {
 
-	private static List<Feed> allFeeds = null;
-
 	private File sdCard = Environment.getExternalStorageDirectory();
 	public static File filesDir;
 	private SharedPreferences prefs;
@@ -118,7 +116,7 @@ public class ManageActivity extends Activity {
 
 	}
 
-	@SuppressWarnings("unchecked")
+
 	private void loadFeeds() {
 		// File output = new File(filesDir, "feeds.htm");
 		if (Utils.networkAvailability(this)) // until login is taken care of
@@ -129,7 +127,7 @@ public class ManageActivity extends Activity {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+
 	private void searchFeeds(String searchText) {
 		// File output = new File(filesDir, "feeds.htm");
 		if (Utils.networkAvailability(this)) // until login is taken care of
@@ -191,8 +189,10 @@ public class ManageActivity extends Activity {
 	}
 
 	private void listFeeds() {
-		if (allFeeds != null) {
-			Log.d("FEEDS", "Here " + allFeeds.size());
+
+		List<Feed> feeds = FeedMap.getInstance().toList();
+		if (feeds != null) {
+			Log.d("FEEDS", "Here " + feeds.size());
 			LinearLayout feedScroll = (LinearLayout) findViewById(R.id.feed_list);
 
 			// CurrFeed Layout Params
@@ -216,8 +216,10 @@ public class ManageActivity extends Activity {
 
 			if (((LinearLayout) feedScroll).getChildCount() > 0)
 				((LinearLayout) feedScroll).removeAllViews();
-			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
-				Feed feed = allFeeds.get(i / 2);
+			
+			
+			for (int i = 0; i < 2 * feeds.size(); i += 2) {
+				Feed feed = feeds.get(i / 2);
 				if (feed.isAdded()) {
 					myVib.vibrate(50);
 					TableLayout currFeed = new TableLayout(this);
@@ -231,10 +233,9 @@ public class ManageActivity extends Activity {
 					feedName.setPadding(5, 5, 5, 5);
 					feedName.setHorizontallyScrolling(false);
 					feedName.setGravity(Gravity.LEFT);
-					feedName.setOnClickListener(new View.OnClickListener() {
+					feedName.setOnClickListener(new FeedClickListener(feed) {
 						public void onClick(View v) {
-							int id = v.getId();
-							viewFeed(allFeeds.get(id / 2));
+							viewFeed(feed);
 						}
 					});
 					ImageButton unsubscribe = new ImageButton(this);
@@ -242,17 +243,16 @@ public class ManageActivity extends Activity {
 					Drawable icon = getResources().getDrawable(
 							R.drawable.ic_menu_delete);
 					unsubscribe.setBackground(icon);
-					unsubscribe.setOnClickListener(new View.OnClickListener() {
+					unsubscribe.setOnClickListener(new FeedClickListener(feed) {
 						public void onClick(View v) {
-							int id = v.getId();
 							myVib.vibrate(50);
 							String unsubURL = "unsubscribe/?"
-									+ allFeeds.get((id - 1) / 2).getKey();
+									+ feed.getKey();
 							UnsubscribeCommand unsub = new UnsubscribeCommand(
 									unsubURL);
 							RemoveFeed remove = new RemoveFeed();
 							remove.execute(unsub);
-							allFeeds.remove((id - 1) / 2);
+							FeedMap.getInstance().remove(feed.getURL());
 							MainActivity.shouldRefresh = true;
 							listFeeds();
 
@@ -279,11 +279,10 @@ public class ManageActivity extends Activity {
 					feedName.setPadding(5, 5, 5, 5);
 					feedName.setHorizontallyScrolling(false);
 					feedName.setGravity(Gravity.LEFT);
-					feedName.setOnClickListener(new View.OnClickListener() {
+					feedName.setOnClickListener(new FeedClickListener(feed) {
 						public void onClick(View v) {
 							myVib.vibrate(50);
-							int id = v.getId();
-							viewFeed(allFeeds.get(id / 2));
+							viewFeed(feed);
 						}
 					});
 					ImageButton addFeed = new ImageButton(this);
@@ -291,16 +290,13 @@ public class ManageActivity extends Activity {
 					Drawable icon = getResources().getDrawable(
 							R.drawable.btn_check_on);
 					addFeed.setBackground(icon);
-					addFeed.setOnClickListener(new View.OnClickListener() {
+					addFeed.setOnClickListener(new FeedClickListener(feed) {
 						public void onClick(View v) {
 							myVib.vibrate(50);
-							int id = v.getId();
-							String addFeedURL = allFeeds.get((id - 1) / 2)
-									.getURL();
+							String addFeedURL = feed.getURL();
 							addFeed(addFeedURL);
 							MainActivity.shouldRefresh = true;
 							listFeeds();
-
 						}
 					});
 					View divider = new View(this);
@@ -335,7 +331,10 @@ public class ManageActivity extends Activity {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					allFeeds = Feed.search(v.getText().toString(), allFeeds);
+					FeedMap feedMap = FeedMap.getInstance();
+					List<Feed> feeds = feedMap.toList();
+					feeds = Feed.search(v.getText().toString(), feeds);
+					feedMap.putList(feeds);
 					Log.d("FEED SEARCH", v.getText().toString());
 
 					ActionBar actionBar = getActionBar();
@@ -410,7 +409,9 @@ public class ManageActivity extends Activity {
 				dialog.dismiss();
 			}
 			Log.d("FEEDS", "On Post Execute " + result.size());
-			ManageActivity.allFeeds = result;
+			FeedMap feedMap = FeedMap.getInstance();
+			feedMap.clear();
+			feedMap.putList(result);
 			listFeeds();
 
 		}
@@ -454,7 +455,10 @@ public class ManageActivity extends Activity {
 				dialog.dismiss();
 			}
 			Log.d("FEEDS", "On Post Execute " + result.size());
-			ManageActivity.allFeeds = result;
+			
+			FeedMap feedMap = FeedMap.getInstance();
+			feedMap.clear();
+			feedMap.putList(result);
 			listFeeds();
 
 		}
@@ -513,4 +517,18 @@ public class ManageActivity extends Activity {
 		setContentView(R.layout.activity_manage);
 		listFeeds();
 	}
+	
+	
+	public abstract class FeedClickListener implements View.OnClickListener
+	{
+		
+		protected Feed feed;
+		public FeedClickListener(Feed feed){
+			this.feed = feed;
+		}
+		
+		@Override
+		public abstract void onClick(View v);
+	}
+	
 }

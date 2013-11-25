@@ -1,6 +1,8 @@
 package com.leggo;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * 
@@ -26,5 +28,25 @@ public class FeedMap extends Hashtable<String, Feed>{
 		}
 		return instance;
 	}
+	
+	public void putList(List<Feed> feeds){
+		putList(feeds, true);
+	}
+	
+	public void putList(List<Feed> feeds, boolean clear){
+		if (clear){
+			this.clear();
+		}
+		for(Feed f : feeds){
+			this.put(f.getURL(), f);
+		}
+	}
+	
+	public List<Feed> toList(){
+		List<Feed> result = new ArrayList<Feed>(this.values());
+		return result;
+	}
+	
+	
 
 }
