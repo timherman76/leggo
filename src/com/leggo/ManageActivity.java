@@ -358,6 +358,7 @@ public class ManageActivity extends Activity {
 					List<Feed> feeds = feedMap.toList();
 					feeds = Feed.search(v.getText().toString(), feeds);
 					feedMap.putList(feeds);
+					listFeeds();
 					Log.d("FEED SEARCH", v.getText().toString());
 
 					ActionBar actionBar = getActionBar();
