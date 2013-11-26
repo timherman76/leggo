@@ -76,7 +76,11 @@ public class SettingsActivity extends PreferenceActivity {
 					if ((MainActivity.articleScroll).getChildCount() > 0)
 						(MainActivity.articleScroll).removeAllViews();
 					
+					if (ManageActivity.feedScroll != null && (ManageActivity.feedScroll).getChildCount() > 0)
+						(ManageActivity.feedScroll).removeAllViews();
+					
 					MainActivity.shouldRefresh = true;
+					ManageActivity.shouldRefresh = true;
 					
 					// Set accountName a newValue
 					String accountName = (String) newValue;

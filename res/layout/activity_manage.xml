@@ -18,39 +18,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/textlines"	
+        android:background="@drawable/textlines"
         android:padding="5dp" >
-        
+
         <TableRow>
-           <EditText
-               android:id="@+id/add_feed_uri"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:hint="@string/add_feed_hint"
-               android:layout_weight="1"
-               android:inputType="textUri"
-               android:paddingLeft="10dp"
-               android:paddingRight="12dp" />
 
-           <Button
-               android:id="@+id/add_feed"
-               android:layout_width="wrap_content"
-               android:layout_height="32dp"
-               android:onClick="onEnterSearchText"
-               android:text="@string/add_feed"
-               android:textSize="12sp" />
-           </TableRow>
-        
+            <EditText
+                android:id="@+id/add_feed_uri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/add_feed_hint"
+                android:inputType="textUri"
+                android:paddingLeft="10dp"
+                android:paddingRight="12dp" />
+
+            <Button
+                android:id="@+id/add_feed"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:onClick="onEnterSearchText"
+                android:text="@string/add_feed"
+                android:textSize="12sp" />
+        </TableRow>
     </TableLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingTop="10dp"
-        android:text="@string/feeds_header"
-        android:textSize="20sp"
-        android:textStyle="bold" />
 
     <ScrollView
         android:id="@+id/feed_scroll"

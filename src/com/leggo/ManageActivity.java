@@ -41,8 +41,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.leggo.MainActivity.GetArticles;
 import com.leggo.parsing.AddFeedCommand;
 import com.leggo.parsing.FeedSearchCommand;
+import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
 import com.leggo.parsing.UnsubscribeCommand;
 
@@ -60,6 +62,9 @@ public class ManageActivity extends Activity {
 	String currentAccountName;
 
 	public static boolean shouldRestart;
+	public static boolean shouldRefresh;
+	
+	public static LinearLayout feedScroll;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +93,9 @@ public class ManageActivity extends Activity {
 
 
 		shouldRestart = false;
+		shouldRefresh = false;
+		
+		feedScroll = (LinearLayout) findViewById(R.id.feed_list);
 
 		setContentView(R.layout.activity_manage);
 
@@ -108,10 +116,25 @@ public class ManageActivity extends Activity {
 		super.onResume();
 
 		fontSize = Integer.parseInt(prefs.getString("fontSize", "16"));
-
+		
 		if (shouldRestart == true) {
 			Utils.restartActivity(this);
 			shouldRestart = false;
+		}
+		
+
+		currentAccountName = prefs
+				.getString("account_selection", "default");
+		if (currentAccountName.equals("None")
+				|| currentAccountName.equals("default")) {
+			Utils.noAccountAlert(this);
+		}
+		
+		else if (shouldRefresh == true) {
+			GetFeedsCommand refresh = new GetFeedsCommand();
+			GetFeeds get = new GetFeeds(this);
+			get.execute(refresh);
+			shouldRefresh = false;
 		}
 
 	}
@@ -193,7 +216,7 @@ public class ManageActivity extends Activity {
 		List<Feed> feeds = FeedMap.getInstance().toList();
 		if (feeds != null) {
 			Log.d("FEEDS", "Here " + feeds.size());
-			LinearLayout feedScroll = (LinearLayout) findViewById(R.id.feed_list);
+			feedScroll = (LinearLayout) findViewById(R.id.feed_list);
 
 			// CurrFeed Layout Params
 			TableLayout.LayoutParams currFeedParam = new TableLayout.LayoutParams(
