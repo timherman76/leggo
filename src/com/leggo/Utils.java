@@ -32,6 +32,20 @@ public class Utils {
 							}
 						}).show();
 	}
+	
+	public static void timeOutAlert(Activity activity) {
+		new AlertDialog.Builder(activity)
+				.setTitle("Connection to Server Failed")
+				.setMessage(
+						"Your connection to the server has timed out.  Please check your network connection and try again.")
+				.setPositiveButton("Okay",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// nothing
+							}
+						}).show();
+	}
 
 	public static void noAccountAlert(final Activity activity) {
 		new AlertDialog.Builder(activity)
