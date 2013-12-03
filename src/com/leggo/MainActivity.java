@@ -3,7 +3,9 @@ package com.leggo;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.accounts.Account;
@@ -27,6 +29,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView.ScaleType;
@@ -43,12 +46,16 @@ import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
 import com.leggo.parsing.MarkReadCommand;
 import com.leggo.parsing.MarkUnreadCommand;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 public class MainActivity extends Activity {
 
 	public static final String TAG = "MainActivity";
 
 	public static Context context;
+	
+	float density;
+	int panelHeight;
 
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor editor;
@@ -64,6 +71,9 @@ public class MainActivity extends Activity {
 	public static LinearLayout articleScroll;
 	
 	protected static Vibrator myVib;
+	protected static SlidingUpPanelLayout panel;
+	
+	protected static List<Article> markReadList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,18 +89,21 @@ public class MainActivity extends Activity {
 
 		Theme.setPrefTheme(this);
 
-		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-		Date now = new Date();
 
 		setContentView(R.layout.activity_main);
-
-		TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
-		refreshBar.setText("Last Refreshed: " + df.format(now).toString());
+		density = context.getResources().getDisplayMetrics().density;
+		
+		panelHeight = 0;
+		panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+		panel.setPanelHeight(panelHeight);
+		panel.setSlidingEnabled(false);
 
 		shouldRestart = false;
 		shouldRefresh = false;
 		
 		articleScroll = (LinearLayout) findViewById(R.id.article_list);
+		
+		markReadList = new ArrayList<Article>();
 
 		if (Utils.networkAvailability(this) == true) {
 			AccountManager accountManager = AccountManager
@@ -122,6 +135,10 @@ public class MainActivity extends Activity {
 						// Found account, revalidate here
 						AuthCookie.revalidateCookie(accountIndex, this);
 						loadArticles();
+						SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+						Date now = new Date();
+						TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
+						refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 					}
 					accountIndex++;
 				}
@@ -293,7 +310,7 @@ public class MainActivity extends Activity {
 									Intent.ACTION_VIEW, Uri.parse(curr.getURL()));
 							startActivity(browserIntent);
 							boolean autoMarkAsRead = prefs.getBoolean("autoMarkAsRead", false);
-							if(autoMarkAsRead && !curr.isRead()){ //TODO: Fix this conditional
+							if(autoMarkAsRead && !curr.isRead()){
 								MarkReadCommand mark = new MarkReadCommand(curr.getKey());
 								MarkRead marktask = new MarkRead();
 								marktask.execute(mark);
@@ -317,7 +334,7 @@ public class MainActivity extends Activity {
 				ImageButton readButton = new ImageButton(this);
 				readButton.setId(i + 1);
 				readButton.setBackground(getBaseContext().getResources()
-						.getDrawable(R.drawable.ic_read));
+						.getDrawable(R.drawable.btn_check_off));
 				readButton.setScaleType(ScaleType.FIT_CENTER);
 
 				readButton.setOnClickListener(new View.OnClickListener() {
@@ -326,21 +343,69 @@ public class MainActivity extends Activity {
 						if (id % 2 == 1) {
 							myVib.vibrate(50);
 							Article curr = articles.get(id/2);
+							if(panelHeight == 0){
+								/*LinearLayout panelLayout = (LinearLayout) findViewById(R.id.panel_layout);
+								
+								RelativeLayout.LayoutParams dividerParam = new RelativeLayout.LayoutParams(1, RelativeLayout.LayoutParams.MATCH_PARENT);
+								View divider = new View(getBaseContext());
+								divider.setBackgroundColor(Color.parseColor("#9E9E9E"));*/
+								
+								Button cancel = (Button) findViewById(R.id.cancel_button);
+								cancel.setText("Cancel");
+								cancel.setOnClickListener(new View.OnClickListener() {
+									public void onClick(View v) {
+										panelHeight = 0;
+										panel.setPanelHeight(panelHeight);
+										if(markReadList != null){
+											resetIcons();
+											markReadList.clear();
+										}
+									}
+								});
+								
+								
+								Button ok = (Button) findViewById(R.id.ok_button);
+								ok.setText("OK");
+								ok.setOnClickListener(new View.OnClickListener() {
+									public void onClick(View v) {
+										panelHeight = 0;
+										panel.setPanelHeight(panelHeight);
+										if(markReadList != null)
+											markAllAsRead();
+									}
+								});
+								
+								TextView panelText = (TextView) findViewById(R.id.popup_text);
+								panelText.setText("Mark As Read");
+								panelText.setGravity(Gravity.CENTER_HORIZONTAL);
+								panelText.setPadding((int)(125* density * 0.5f),(int)(34 * density * 0.5f),(int)(125* density * 0.5f),0);
+								//panelLayout.addView(divider, dividerParam);
+								
+								panelHeight= (int) (68 * density + 0.5f);
+								panel.setPanelHeight(panelHeight);
+								panel.setShadowDrawable(getBaseContext().getResources().getDrawable(R.drawable.above_shadow));
+							}
 							if(!curr.isRead()){
-								MarkReadCommand mark = new MarkReadCommand(curr.getKey());
-								MarkRead marktask = new MarkRead();
-								marktask.execute(mark);
+								//MarkReadCommand mark = new MarkReadCommand(curr.getKey());
+								//MarkRead marktask = new MarkRead();
+								//marktask.execute(mark);
 								curr.setRead(true);
+								markReadList.add(curr);
 								articles.set(id/2,curr);
 								v.setBackground(getBaseContext().getResources().getDrawable(R.drawable.btn_check_on));
 							}
 							else {
-								MarkUnreadCommand mark = new MarkUnreadCommand(curr.getKey());
-								MarkUnread marktask = new MarkUnread();
-								marktask.execute(mark);
+								//MarkUnreadCommand mark = new MarkUnreadCommand(curr.getKey());
+								//MarkUnread marktask = new MarkUnread();
+								//marktask.execute(mark);
+								markReadList.remove(curr);
 								curr.setRead(false);
 								articles.set(id/2, curr);
-								v.setBackground(getBaseContext().getResources().getDrawable(R.drawable.ic_read));
+								v.setBackground(getBaseContext().getResources().getDrawable(R.drawable.btn_check_off));
+								if(markReadList.isEmpty()){
+									panelHeight=0;
+									panel.setPanelHeight(panelHeight);
+								}
 							}
 							
 						}
@@ -490,5 +555,32 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		listArticles();
 	}
+	
+	public void markAllAsRead(){
+		for(Article article : markReadList){
+			int index = articles.indexOf(article);
+			String key = article.getKey();
+			MarkReadCommand mark = new MarkReadCommand(key);
+			MarkRead marktask = new MarkRead();
+			marktask.execute(mark);
+			articles.remove(index);
+			
+		}
+		markReadList.clear();
+		listArticles();
+	}
 
+	private void resetIcons() {
+		for(Article article : markReadList){
+			int index = articles.indexOf(article);
+			int id = (index*2) + 1;
+			
+			article.setRead(false);
+			articles.set(index, article);
+			ImageButton curr = (ImageButton) findViewById(id);
+			curr.setBackground(getResources().getDrawable(R.drawable.btn_check_off));
+		}
+		
+	}
+	
 }

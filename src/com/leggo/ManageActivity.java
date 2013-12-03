@@ -88,11 +88,12 @@ public class ManageActivity extends Activity {
 
 		else {
 			loadFeeds();
+			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+			Date now = new Date();
+			TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
+			refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 			
 		}
-		Date now = new Date();
-		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-
 
 		shouldRestart = false;
 		shouldRefresh = false;
@@ -100,10 +101,6 @@ public class ManageActivity extends Activity {
 		feedScroll = (LinearLayout) findViewById(R.id.feed_list);
 
 		setContentView(R.layout.activity_manage);
-
-		TextView refreshBar = (TextView) findViewById(R.id.manage_refresh_bar);
-		refreshBar.setText("Last Refreshed: " + df.format(now).toString());
-
 	}
 
 	@Override

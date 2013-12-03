@@ -1,38 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity" >
-
-    <TextView
-        android:id="@+id/main_refresh_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:paddingRight="5dp" />
-
-    <ImageView
-        android:id="@+id/articles_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/articles" />
-
-    <ScrollView
-        android:id="@+id/article_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:overScrollMode="never" >
-
-        <LinearLayout
-            android:id="@+id/article_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-        </LinearLayout>
-    </ScrollView>
-
-</LinearLayout>
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	tools:context=".MainActivity" > 
+	<com.sothree.slidinguppanel.SlidingUpPanelLayout
+	    android:id="@+id/sliding_layout"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" >
+	    <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:orientation="vertical">
+		
+		    <TextView
+		        android:id="@+id/main_refresh_bar"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="right"
+		        android:paddingRight="5dp" />
+		
+		    <ImageView
+		        android:id="@+id/articles_header"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center"
+		        android:src="@drawable/articles" />
+		
+		    <ScrollView
+		        android:id="@+id/article_scroll"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center"
+		        android:overScrollMode="never" >
+		
+		        <LinearLayout
+		            android:id="@+id/article_list"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:orientation="vertical" >
+		        </LinearLayout>
+		    </ScrollView>
+		
+		</LinearLayout>
+		<LinearLayout
+		    android:id="@+id/panel_layout"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent">
+		    <TextView
+		        android:id="@+id/popup_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        />
+		    <Button 
+		        android:id="@+id/cancel_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+		    
+		    <Button 
+		        android:id="@+id/ok_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+		</LinearLayout>
+	</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</RelativeLayout>
