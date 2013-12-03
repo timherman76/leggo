@@ -508,7 +508,7 @@ public class MainActivity extends Activity {
 			MainActivity.articles = result;
 			
 			if (articles == null) {
-				Utils.timeOutAlert((Activity) context);
+				//Utils.timeOutAlert((Activity) context);
 			} else {
 				
 				listArticles();

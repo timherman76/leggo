@@ -7,6 +7,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -52,7 +53,7 @@ public class ManageActivity extends Activity {
 
 	private static List<Feed> allFeeds = null;
 
-	private File sdCard = Environment.getExternalStorageDirectory();
+	private File sdCard;
 	public static File filesDir;
 	private SharedPreferences prefs;
 	public static boolean isAdded;
@@ -71,12 +72,14 @@ public class ManageActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		sdCard = Environment.getExternalStorageDirectory();
 		context = this;
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 		Theme.setPrefTheme(this);
+		
+		setContentView(R.layout.activity_manage);
 
 		filesDir = new File(sdCard + "/Android/data/com.leggo/files");
 		filesDir.mkdirs();
@@ -90,8 +93,9 @@ public class ManageActivity extends Activity {
 			loadFeeds();
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 			Date now = new Date();
-			TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
-			refreshBar.setText("Last Refreshed: " + df.format(now).toString());
+			TextView refreshBar = (TextView) findViewById(R.id.manage_refresh_bar);
+			if(refreshBar != null)
+				refreshBar.setText("Last Refreshed: " + df.format(now).toString());
 			
 		}
 
@@ -100,7 +104,6 @@ public class ManageActivity extends Activity {
 		
 		feedScroll = (LinearLayout) findViewById(R.id.feed_list);
 
-		setContentView(R.layout.activity_manage);
 	}
 
 	@Override
