@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
 
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor editor;
-	
+
 	private int fontSize;
 
 	private String currentAccountName;
@@ -67,12 +67,12 @@ public class MainActivity extends Activity {
 
 	public static boolean shouldRestart;
 	public static boolean shouldRefresh;
-	
+
 	public static LinearLayout articleScroll;
-	
+
 	protected static Vibrator myVib;
 	protected static SlidingUpPanelLayout panel;
-	
+
 	protected static List<Article> markReadList;
 
 	@Override
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		editor = prefs.edit();
-		
+
 		fontSize = 16;
 
 		Theme.setPrefTheme(this);
@@ -100,9 +100,9 @@ public class MainActivity extends Activity {
 
 		shouldRestart = false;
 		shouldRefresh = false;
-		
+
 		articleScroll = (LinearLayout) findViewById(R.id.article_list);
-		
+
 		markReadList = new ArrayList<Article>();
 
 		if (Utils.networkAvailability(this) == true) {
@@ -185,8 +185,7 @@ public class MainActivity extends Activity {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					articles = Article.search(v
-							.getText().toString(), articles);
+					articles = Article.search(v.getText().toString(), articles);
 					listArticles();
 					ActionBar actionBar = getActionBar();
 					actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
@@ -215,22 +214,20 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		fontSize = Integer.parseInt(prefs.getString("fontSize", "16"));
 
 		if (shouldRestart == true) {
 			Utils.restartActivity(this);
 			shouldRestart = false;
 		}
-		
 
-		currentAccountName = prefs
-				.getString("account_selection", "default");
+		currentAccountName = prefs.getString("account_selection", "default");
 		if (currentAccountName.equals("None")
 				|| currentAccountName.equals("default")) {
 			Utils.noAccountAlert(this);
 		}
-		
+
 		else if (shouldRefresh == true) {
 			GetArticlesCommand refresh = new GetArticlesCommand();
 			GetArticles get = new GetArticles(this);
@@ -256,17 +253,19 @@ public class MainActivity extends Activity {
 	public void listArticles() {
 		if (articles != null) {
 			Log.d("ARTICLES", "Here " + articles.size());
-			
+
 			if ((articleScroll).getChildCount() > 0) // clear list of articles
 				(articleScroll).removeAllViews();
 
 			// CurrArticle Layout Params
 			TableLayout.LayoutParams currArticleParam = new TableLayout.LayoutParams(
-					TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
-			
+					TableLayout.LayoutParams.MATCH_PARENT,
+					TableLayout.LayoutParams.WRAP_CONTENT);
+
 			// Article Name Params
 			TableRow.LayoutParams articleNameParam = new TableRow.LayoutParams(
-				TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+					TableRow.LayoutParams.WRAP_CONTENT,
+					TableRow.LayoutParams.WRAP_CONTENT, 1f);
 			articleNameParam.setMargins(10, 0, 10, 0);
 
 			// Feed Name Params
@@ -280,7 +279,7 @@ public class MainActivity extends Activity {
 					TableRow.LayoutParams.WRAP_CONTENT,
 					TableRow.LayoutParams.WRAP_CONTENT);
 			readButtonParam.setMargins(10, 10, 10, 10);
-			
+
 			// Divider Params
 			RelativeLayout.LayoutParams dividerParam = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.MATCH_PARENT, 1);
@@ -305,9 +304,10 @@ public class MainActivity extends Activity {
 						int id = v.getId();
 						if (id % 2 == 0) {
 							myVib.vibrate(50);
-							Article curr = articles.get(id/2);
+							Article curr = articles.get(id / 2);
 							Intent browserIntent = new Intent(
-									Intent.ACTION_VIEW, Uri.parse(curr.getURL()));
+									Intent.ACTION_VIEW,
+									Uri.parse(curr.getURL()));
 							startActivity(browserIntent);
 							boolean autoMarkAsRead = prefs.getBoolean("autoMarkAsRead", false);
 							if(autoMarkAsRead && !curr.isRead()){
@@ -315,9 +315,11 @@ public class MainActivity extends Activity {
 								MarkRead marktask = new MarkRead();
 								marktask.execute(mark);
 								curr.setRead(true);
-								articles.set(id/2,curr);
-								ImageButton associated = (ImageButton) findViewById(id+1);
-								associated.setBackground(getBaseContext().getResources().getDrawable(R.drawable.btn_check_on));
+								articles.set(id / 2, curr);
+								ImageButton associated = (ImageButton) findViewById(id + 1);
+								associated.setBackground(getBaseContext()
+										.getResources().getDrawable(
+												R.drawable.btn_check_on));
 							}
 						}
 					}
@@ -386,18 +388,12 @@ public class MainActivity extends Activity {
 								panel.setShadowDrawable(getBaseContext().getResources().getDrawable(R.drawable.above_shadow));
 							}
 							if(!curr.isRead()){
-								//MarkReadCommand mark = new MarkReadCommand(curr.getKey());
-								//MarkRead marktask = new MarkRead();
-								//marktask.execute(mark);
 								curr.setRead(true);
 								markReadList.add(curr);
 								articles.set(id/2,curr);
 								v.setBackground(getBaseContext().getResources().getDrawable(R.drawable.btn_check_on));
 							}
 							else {
-								//MarkUnreadCommand mark = new MarkUnreadCommand(curr.getKey());
-								//MarkUnread marktask = new MarkUnread();
-								//marktask.execute(mark);
 								markReadList.remove(curr);
 								curr.setRead(false);
 								articles.set(id/2, curr);
@@ -407,11 +403,10 @@ public class MainActivity extends Activity {
 									panel.setPanelHeight(panelHeight);
 								}
 							}
-							
+
 						}
 					}
 				});
-				
 
 				View divider = new View(this);
 				divider.setBackgroundColor(Color.parseColor("#9E9E9E"));
@@ -511,13 +506,20 @@ public class MainActivity extends Activity {
 
 			Log.d("ARTICLES", "On Post Execute " + result.size());
 			MainActivity.articles = result;
-			listArticles();
+			
+			if (articles == null) {
+				Utils.timeOutAlert((Activity) context);
+			} else {
+				
+				listArticles();
+			}
 		}
 	}
-	
-	protected class MarkRead extends AsyncTask<MarkReadCommand, Integer, Boolean>{
+
+	protected class MarkRead extends
+			AsyncTask<MarkReadCommand, Integer, Boolean> {
 		@Override
-		protected Boolean doInBackground(MarkReadCommand... params){
+		protected Boolean doInBackground(MarkReadCommand... params) {
 			MarkReadCommand mark = params[0];
 			try {
 				String c = prefs.getString("cookie", "default");
@@ -528,13 +530,14 @@ public class MainActivity extends Activity {
 				return false;
 			}
 			return true;
-			
+
 		}
 	}
-	
-	protected class MarkUnread extends AsyncTask<MarkUnreadCommand, Integer, Boolean>{
+
+	protected class MarkUnread extends
+			AsyncTask<MarkUnreadCommand, Integer, Boolean> {
 		@Override
-		protected Boolean doInBackground(MarkUnreadCommand... params){
+		protected Boolean doInBackground(MarkUnreadCommand... params) {
 			MarkUnreadCommand mark = params[0];
 			try {
 				String c = prefs.getString("cookie", "default");
@@ -545,7 +548,7 @@ public class MainActivity extends Activity {
 				return false;
 			}
 			return true;
-			
+
 		}
 	}
 
