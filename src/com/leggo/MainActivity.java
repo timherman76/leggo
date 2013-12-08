@@ -376,11 +376,6 @@ public class MainActivity extends Activity {
 											markAllAsRead();
 									}
 								});
-								
-								TextView panelText = (TextView) findViewById(R.id.popup_text);
-								panelText.setText("Mark As Read");
-								panelText.setGravity(Gravity.CENTER_HORIZONTAL);
-								panelText.setPadding((int)(125* density * 0.5f),(int)(34 * density * 0.5f),(int)(125* density * 0.5f),0);
 								//panelLayout.addView(divider, dividerParam);
 								
 								panelHeight= (int) (68 * density + 0.5f);
@@ -403,6 +398,10 @@ public class MainActivity extends Activity {
 									panel.setPanelHeight(panelHeight);
 								}
 							}
+							TextView panelText = (TextView) findViewById(R.id.popup_text);
+							panelText.setGravity(Gravity.CENTER_HORIZONTAL);
+							panelText.setPadding((int)(125* density * 0.5f),(int)(34 * density * 0.5f),(int)(125* density * 0.5f),0);
+							panelText.setText("Mark " + markReadList.size() + " As Read");
 
 						}
 					}
@@ -556,7 +555,12 @@ public class MainActivity extends Activity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		setContentView(R.layout.activity_main);
+		Log.d("CONFIGURATiONCHANGE", articles.size() + " articles");
 		listArticles();
+		panelHeight = 0;
+		panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+		panel.setPanelHeight(panelHeight);
+		panel.setSlidingEnabled(false);
 	}
 	
 	public void markAllAsRead(){

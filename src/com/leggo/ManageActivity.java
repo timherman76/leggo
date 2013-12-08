@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -48,6 +50,7 @@ import com.leggo.parsing.FeedSearchCommand;
 import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
 import com.leggo.parsing.UnsubscribeCommand;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 public class ManageActivity extends Activity {
 
@@ -59,6 +62,9 @@ public class ManageActivity extends Activity {
 	public static boolean isAdded;
 	private Context context;
 	private Vibrator myVib;
+	protected static SlidingUpPanelLayout panel;
+	protected int panelHeight;
+	protected static List<Feed> addFeeds;
 
 	private int fontSize;
 
@@ -68,6 +74,8 @@ public class ManageActivity extends Activity {
 	public static boolean shouldRefresh;
 	
 	public static LinearLayout feedScroll;
+	
+	float density;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +83,22 @@ public class ManageActivity extends Activity {
 		sdCard = Environment.getExternalStorageDirectory();
 		context = this;
 
+		addFeeds = new ArrayList<Feed>();
+		
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 		Theme.setPrefTheme(this);
 		
 		setContentView(R.layout.activity_manage);
+		
+		
+		density = context.getResources().getDisplayMetrics().density;
+		
+		
+		panelHeight = 0;
+		panel = (SlidingUpPanelLayout) findViewById(R.id.manage_sliding_layout);
+		panel.setPanelHeight(panelHeight);
+		panel.setSlidingEnabled(false);
 
 		filesDir = new File(sdCard + "/Android/data/com.leggo/files");
 		filesDir.mkdirs();
@@ -312,17 +331,69 @@ public class ManageActivity extends Activity {
 					ImageButton addFeed = new ImageButton(this);
 					addFeed.setId(i + 1);
 					Drawable icon = getResources().getDrawable(
-							R.drawable.btn_check_on);
+							R.drawable.btn_check_off);
 					addFeed.setBackground(icon);
 					addFeed.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
 							myVib.vibrate(50);
 							int id = v.getId();
-							String addFeedURL = allFeeds.get((id - 1) / 2)
-									.getURL();
-							addFeed(addFeedURL);
-							MainActivity.shouldRefresh = true;
-							listFeeds();
+							Feed curr = allFeeds.get(id / 2);
+							if(panelHeight == 0){
+								
+								Button cancel = (Button) findViewById(R.id.manage_cancel_button);
+								cancel.setText("Cancel");
+								cancel.setOnClickListener(new View.OnClickListener() {
+									public void onClick(View v) {
+										panelHeight = 0;
+										panel.setPanelHeight(panelHeight);
+										if(addFeeds != null){
+											addFeeds.clear();
+											resetIcons();
+										}
+									}
+								});
+								
+								
+								Button ok = (Button) findViewById(R.id.manage_ok_button);
+								ok.setText("OK");
+								ok.setOnClickListener(new View.OnClickListener() {
+									public void onClick(View v) {
+										panelHeight = 0;
+										panel.setPanelHeight(panelHeight);
+										if(!addFeeds.isEmpty()){
+											addAllMarked();
+										}
+									}
+								});
+							}
+								
+							if (!curr.isAdded()) {
+								curr.setAdded(true);
+								addFeeds.add(curr);
+								allFeeds.set(id/2, curr);
+								v.setBackground(getBaseContext()
+										.getResources().getDrawable(
+												R.drawable.btn_check_on));
+							} else {
+								addFeeds.remove(curr);
+								curr.setAdded(false);
+								v.setBackground(getBaseContext()
+										.getResources().getDrawable(
+												R.drawable.btn_check_off));
+							}
+
+							TextView panelText = (TextView) findViewById(R.id.manage_popup_text);
+							panelText.setGravity(Gravity.CENTER_HORIZONTAL);
+							panelText.setPadding(
+									(int) (125 * density * 0.5f),
+									(int) (34 * density * 0.5f),
+									(int) (125 * density * 0.5f), 0);
+							panelText.setText("Add " + addFeeds.size()
+									+ " Feeds");
+							
+							panelHeight= (int) (68 * density + 0.5f);
+							panel.setPanelHeight(panelHeight);
+							panel.setShadowDrawable(getBaseContext().getResources().getDrawable(R.drawable.above_shadow));
 
 						}
 					});
@@ -482,6 +553,7 @@ public class ManageActivity extends Activity {
 
 		}
 	}
+	
 
 	protected class AddFeed extends AsyncTask<AddFeedCommand, Integer, Boolean> {
 
@@ -529,11 +601,39 @@ public class ManageActivity extends Activity {
 			return (Boolean) success;
 		}
 	}
+	
+	private void resetIcons() {
+		@SuppressWarnings("unused")
+		boolean feedsEmpty = addFeeds.isEmpty();
+		for(Feed feed : addFeeds){
+			int index = allFeeds.indexOf(feed);
+			int id = (index*2) + 1;
+			feed.setAdded(false);
+			ImageButton curr = (ImageButton) findViewById(id);
+			curr.setBackground(getResources().getDrawable(R.drawable.btn_check_off));
+		}
+		
+	}
+	
+	private void addAllMarked(){
+		for(Feed feed : addFeeds){
+			String addFeedURL = feed.getURL();
+	
+			addFeed(addFeedURL);
+			MainActivity.shouldRefresh = true;
+			listFeeds();
+		}
+	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		setContentView(R.layout.activity_manage);
 		listFeeds();
+		panelHeight = 0;
+		panel = (SlidingUpPanelLayout) findViewById(R.id.manage_sliding_layout);
+		panel.setPanelHeight(panelHeight);
+		panel.setSlidingEnabled(false);
+
 	}
 }

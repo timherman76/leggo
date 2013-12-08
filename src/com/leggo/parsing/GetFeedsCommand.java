@@ -49,7 +49,7 @@ public class GetFeedsCommand extends SimplectaCommand {
 		
 		Elements feedElements = doc.select("a.largefeedlink");
 		for (Element feedElem : feedElements){
-			Feed feed = new Feed();
+			Feed feed = new Feed(true); //setting isAdded
 			feed.setName(feedElem.text());
 			String rawfeedURL = feedElem.attr("href");
 			String feedURL = rawfeedURL.substring(rawfeedURL.indexOf("?")+1);

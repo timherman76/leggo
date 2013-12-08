@@ -26,6 +26,11 @@ public class Feed {
 		this.setType(type);
 		this.setAdded(isAdded);
 	}
+	
+	public Feed(boolean isAdded)
+	{
+		this.isAdded = isAdded;
+	}
 
 	public String getURL() {
 		return URL;
