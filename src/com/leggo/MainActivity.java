@@ -303,7 +303,7 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 0) {
-							myVib.vibrate(50);
+							vibrate();
 							Article curr = articles.get(id / 2);
 							Intent browserIntent = new Intent(
 									Intent.ACTION_VIEW,
@@ -343,7 +343,7 @@ public class MainActivity extends Activity {
 					public void onClick(View v) {
 						int id = v.getId();
 						if (id % 2 == 1) {
-							myVib.vibrate(50);
+							vibrate();
 							Article curr = articles.get(id/2);
 							if(panelHeight == 0){
 								/*LinearLayout panelLayout = (LinearLayout) findViewById(R.id.panel_layout);
@@ -507,7 +507,7 @@ public class MainActivity extends Activity {
 			MainActivity.articles = result;
 			
 			if (articles == null) {
-				//Utils.timeOutAlert((Activity) context);
+				Utils.timeOutAlert((Activity) context);
 			} else {
 				
 				listArticles();
@@ -588,6 +588,11 @@ public class MainActivity extends Activity {
 			curr.setBackground(getResources().getDrawable(R.drawable.btn_check_off));
 		}
 		
+	}
+	
+	private void vibrate(){
+		if(myVib != null && prefs.getBoolean("vibrateMode", false))
+			myVib.vibrate(50);
 	}
 	
 }

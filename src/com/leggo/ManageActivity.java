@@ -261,7 +261,7 @@ public class ManageActivity extends Activity {
 			for (int i = 0; i < 2 * allFeeds.size(); i += 2) {
 				Feed feed = allFeeds.get(i / 2);
 				if (feed.isAdded()) {
-					myVib.vibrate(50);
+					//vibrate();
 					TableLayout currFeed = new TableLayout(this);
 					TableRow tableRow1 = new TableRow(this);
 					TextView feedName = new TextView(this);
@@ -287,7 +287,7 @@ public class ManageActivity extends Activity {
 					unsubscribe.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
 							int id = v.getId();
-							myVib.vibrate(50);
+							vibrate();
 							String unsubURL = "unsubscribe/?"
 									+ allFeeds.get((id - 1) / 2).getKey();
 							UnsubscribeCommand unsub = new UnsubscribeCommand(
@@ -323,7 +323,7 @@ public class ManageActivity extends Activity {
 					feedName.setGravity(Gravity.LEFT);
 					feedName.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
-							myVib.vibrate(50);
+							vibrate();
 							int id = v.getId();
 							viewFeed(allFeeds.get(id / 2));
 						}
@@ -335,7 +335,7 @@ public class ManageActivity extends Activity {
 					addFeed.setBackground(icon);
 					addFeed.setOnClickListener(new View.OnClickListener() {
 						public void onClick(View v) {
-							myVib.vibrate(50);
+							vibrate();
 							int id = v.getId();
 							Feed curr = allFeeds.get(id / 2);
 							if(panelHeight == 0){
@@ -505,7 +505,10 @@ public class ManageActivity extends Activity {
 			}
 			Log.d("FEEDS", "On Post Execute " + result.size());
 			ManageActivity.allFeeds = result;
-			listFeeds();
+			if(allFeeds != null)
+				listFeeds();
+			else
+				Utils.timeOutAlert((Activity) getBaseContext());
 
 		}
 	}
@@ -603,8 +606,6 @@ public class ManageActivity extends Activity {
 	}
 	
 	private void resetIcons() {
-		@SuppressWarnings("unused")
-		boolean feedsEmpty = addFeeds.isEmpty();
 		for(Feed feed : addFeeds){
 			int index = allFeeds.indexOf(feed);
 			int id = (index*2) + 1;
@@ -635,5 +636,10 @@ public class ManageActivity extends Activity {
 		panel.setPanelHeight(panelHeight);
 		panel.setSlidingEnabled(false);
 
+	}
+	
+	private void vibrate(){
+		if(myVib != null && prefs.getBoolean("vibrateMode", false))
+			myVib.vibrate(50);
 	}
 }
