@@ -5,12 +5,11 @@
         android:summary="Google Accounts"
         android:title="@string/google_accounts_title" >
 
-    <ListPreference
-         android:key="account_selection"
-         android:title="@string/account_title"
-         android:summary="Select Google Account"
-         android:defaultValue="None"
-         />
+        <ListPreference
+            android:defaultValue="None"
+            android:key="account_selection"
+            android:summary="Select Google Account"
+            android:title="@string/account_title" />
 
         <Preference
             android:key="add_account"
@@ -31,6 +30,11 @@
             android:key="nightMode"
             android:summary="On/Off"
             android:title="Night Mode" />
+
+        <CheckBoxPreference
+            android:key="vibrateMode"
+            android:summary="On/Off"
+            android:title="Vibration Feedback" />
 
         <ListPreference
             android:entries="@array/fontSizeOptions"

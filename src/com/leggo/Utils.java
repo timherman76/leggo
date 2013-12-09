@@ -5,16 +5,19 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Vibrator;
+import android.preference.PreferenceManager;
 
 public class Utils {
-	
+
 	public static final String urlRegex = "(http|https):\\/\\/([\\w\\-_]+(?:(?:\\.[\\w\\-_]+)+))([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?";
-	
-	
+
 	public static boolean networkAvailability(Activity activity) {
-		ConnectivityManager CM = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager CM = (ConnectivityManager) activity
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo active = CM.getActiveNetworkInfo();
 		return active != null && active.isConnected();
 	}
@@ -48,9 +51,22 @@ public class Utils {
 							}
 						}).show();
 	}
-	
-	public static void restartActivity(Activity activity)
-	{
+
+	public static void timeOutAlert(Activity activity) {
+		new AlertDialog.Builder(activity)
+				.setTitle("Connection to Server Failed")
+				.setMessage(
+						"Your connection to the server has timed out.  Please check your network connection and try again.")
+				.setPositiveButton("Okay",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// nothing
+							}
+						}).show();
+	}
+
+	public static void restartActivity(Activity activity) {
 		Intent intent = activity.getIntent();
 
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -62,4 +78,12 @@ public class Utils {
 		activity.overridePendingTransition(0, 0);
 	}
 
+	public static void sendVibrate(Vibrator vibrator, int duration,
+			Context context) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		if (prefs.getBoolean("vibrateMode", false)) {
+			vibrator.vibrate(duration);
+		}
+	}
 }

@@ -347,8 +347,8 @@ public class ManageActivity extends Activity {
 										panelHeight = 0;
 										panel.setPanelHeight(panelHeight);
 										if(addFeeds != null){
-											addFeeds.clear();
 											resetIcons();
+											addFeeds.clear();
 										}
 									}
 								});
