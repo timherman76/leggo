@@ -164,13 +164,15 @@ public class MainActivity extends Activity {
 
 			break;
 		case R.id.action_refresh:
-			GetArticlesCommand refresh = new GetArticlesCommand();
-			GetArticles get = new GetArticles(this);
-			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-			get.execute(refresh);
-			Date now = new Date();
-			TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
-			refreshBar.setText("Last Refreshed: " + df.format(now).toString());
+			if(Utils.networkAvailability(this)){
+				GetArticlesCommand refresh = new GetArticlesCommand();
+				GetArticles get = new GetArticles(this);
+				SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+				get.execute(refresh);
+				Date now = new Date();
+				TextView refreshBar = (TextView) findViewById(R.id.main_refresh_bar);
+				refreshBar.setText("Last Refreshed: " + df.format(now).toString());
+				}
 			break;
 		}
 		return true;
@@ -533,6 +535,7 @@ public class MainActivity extends Activity {
 		super.onConfigurationChanged(newConfig);
 		setContentView(R.layout.activity_main);
 		Log.d("CONFIGURATiONCHANGE", articles.size() + " articles");
+		loadArticles();
 		listArticles();
 		panelHeight = 0;
 		panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);

@@ -18,7 +18,7 @@
     <string name="refresh">Refresh</string>
     <string name="articles_header">Articles</string>
     <string name="splash_text">Loading.</string>
-    <string name="mark_as_read">Mark As Read</string>
+    <string name="mark_as_read">Mark Read</string>
     <string name="cancel">Cancel</string>
     <string name="add_feeds">Add Feeds</string>
 </resources>

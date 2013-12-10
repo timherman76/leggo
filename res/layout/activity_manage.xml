@@ -87,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
-                android:textSize="28sp" />
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/manage_ok_button"
@@ -95,23 +95,23 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="5dp"
-                android:padding="8dp"
+                android:layout_margin="4dp"
+                android:padding="4dp"
                 android:background="@drawable/roundbutton"
                 android:shadowColor="#A8A8A8"
                 android:shadowDx="0"
                 android:shadowDy="0"
                 android:shadowRadius="5"
                 android:text="@string/add_feeds"
-                android:textSize="28sp" />
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/manage_cancel_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="5dp"
-                android:padding="8dp"
+                android:layout_margin="4dp"
+                android:padding="4dp"
                 android:layout_toLeftOf="@+id/manage_ok_button"
                 android:background="@drawable/roundbutton"
                 android:shadowColor="#A8A8A8"
@@ -119,7 +119,7 @@
                 android:shadowDy="0"
                 android:shadowRadius="5"
                 android:text="@string/cancel"
-                android:textSize="28sp" />
+                android:textSize="14sp" />
         </RelativeLayout>
 	</com.sothree.slidinguppanel.SlidingUpPanelLayout>
 </RelativeLayout>
