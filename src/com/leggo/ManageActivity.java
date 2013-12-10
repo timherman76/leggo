@@ -619,8 +619,8 @@ public class ManageActivity extends Activity {
 		}
 	}
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	//@Override
+	/* public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		setContentView(R.layout.activity_manage);
 		listFeeds();
@@ -629,7 +629,7 @@ public class ManageActivity extends Activity {
 		panel.setPanelHeight(panelHeight);
 		panel.setSlidingEnabled(false);
 
-	}
+	} */
 	
 	private void vibrate(){
 		if(myVib != null && prefs.getBoolean("vibrateMode", false))

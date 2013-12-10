@@ -95,6 +95,8 @@ public class MainActivity extends Activity {
 		shouldRestart = false;
 		shouldRefresh = false;
 
+		
+		
 		articleScroll = (LinearLayout) findViewById(R.id.article_list);
 
 		markReadList = new ArrayList<Article>();
@@ -530,18 +532,17 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	//@Override
+	/*public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		setContentView(R.layout.activity_main);
 		Log.d("CONFIGURATiONCHANGE", articles.size() + " articles");
-		loadArticles();
 		listArticles();
 		panelHeight = 0;
 		panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 		panel.setPanelHeight(panelHeight);
 		panel.setSlidingEnabled(false);
-	}
+	} */
 
 	public void markAllAsRead() {
 		for (Article article : markReadList) {
