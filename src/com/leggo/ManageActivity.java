@@ -8,9 +8,8 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -43,15 +42,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-
-import com.leggo.MainActivity.GetArticles;
 import com.leggo.parsing.AddFeedCommand;
 import com.leggo.parsing.FeedSearchCommand;
-import com.leggo.parsing.GetArticlesCommand;
 import com.leggo.parsing.GetFeedsCommand;
 import com.leggo.parsing.UnsubscribeCommand;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+@SuppressLint("SimpleDateFormat")
 public class ManageActivity extends Activity {
 
 	private static List<Feed> allFeeds = null;
@@ -160,7 +157,6 @@ public class ManageActivity extends Activity {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void loadFeeds() {
 		// File output = new File(filesDir, "feeds.htm");
 		if (Utils.networkAvailability(this)) // until login is taken care of
@@ -171,7 +167,6 @@ public class ManageActivity extends Activity {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void searchFeeds(String searchText) {
 		// File output = new File(filesDir, "feeds.htm");
 		if (Utils.networkAvailability(this)) // until login is taken care of

@@ -45,6 +45,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 	private String auth_token;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		context = this;
@@ -235,7 +236,6 @@ public class SettingsActivity extends PreferenceActivity {
 				if (i == null) {
 					// User input not required, we have permission. Set
 					// preference to the account.
-					Toast.makeText(context, "DEBUG: Already Have Permission", Toast.LENGTH_SHORT).show();
 					ListPreference accountPref = (ListPreference) prefManager.findPreference(ACCOUNT_SELECTION);
 					accountPref.setValue(accountName);
 					accountSelectionPref.setSummary("Logged in as: " + accountName);
@@ -251,7 +251,6 @@ public class SettingsActivity extends PreferenceActivity {
 					flags &= ~Intent.FLAG_ACTIVITY_NEW_TASK;
 					i.setFlags(flags);
 
-					Toast.makeText(context, "DEBUG: Do Not Have Permission, Requesting It", Toast.LENGTH_SHORT).show();
 					idRequests[id] = accountName;
 
 					// StartActvitityForResult has a second parameter
@@ -273,6 +272,7 @@ public class SettingsActivity extends PreferenceActivity {
 	};
 
 	// Called after the permission prompt intent.
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

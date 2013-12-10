@@ -17,5 +17,6 @@
     <string name="search">Search</string>
     <string name="refresh">Refresh</string>
     <string name="articles_header">Articles</string>
+    <string name="splash_text">Loading.</string>
 
 </resources>
