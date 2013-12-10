@@ -42,7 +42,8 @@
         <activity
             android:name="com.leggo.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.leggo.ManageActivity"
