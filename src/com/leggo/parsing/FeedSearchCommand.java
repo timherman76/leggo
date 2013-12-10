@@ -47,13 +47,17 @@ public class FeedSearchCommand extends RssSearchHubCommand {
 		for (Element feedElem : feedElements){
 			Feed feed = new Feed(false); //setting isAdded
 			String feedURL = feedElem.attr("href");
-			feed.setURL(feedURL);
-			if (!result.contains(feed))
+			if ( feedURL != null )
 			{
-				String name = feedElem.attr("title");
-				feed.setName(name);
-				feed.setAdded(false);
-				result.add(feed);
+				feedURL = feedURL.toLowerCase().trim();
+				feed.setURL(feedURL);
+				if (!result.contains(feed))
+				{
+					String name = feedElem.attr("title");
+					feed.setName(name);
+					feed.setAdded(false);
+					result.add(feed);
+				}
 			}
 		}
 		
