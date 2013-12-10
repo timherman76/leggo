@@ -336,7 +336,6 @@ public class ManageActivity extends Activity {
 							if(panelHeight == 0){
 								
 								Button cancel = (Button) findViewById(R.id.manage_cancel_button);
-								cancel.setText("Cancel");
 								cancel.setOnClickListener(new View.OnClickListener() {
 									public void onClick(View v) {
 										panelHeight = 0;
@@ -350,7 +349,6 @@ public class ManageActivity extends Activity {
 								
 								
 								Button ok = (Button) findViewById(R.id.manage_ok_button);
-								ok.setText("OK");
 								ok.setOnClickListener(new View.OnClickListener() {
 									public void onClick(View v) {
 										panelHeight = 0;
@@ -383,8 +381,8 @@ public class ManageActivity extends Activity {
 									(int) (125 * density * 0.5f),
 									(int) (34 * density * 0.5f),
 									(int) (125 * density * 0.5f), 0);
-							panelText.setText("Add " + addFeeds.size()
-									+ " Feeds");
+							panelText.setText(addFeeds.size()
+									+ " Feeds Selected");
 							
 							panelHeight= (int) (68 * density + 0.5f);
 							panel.setPanelHeight(panelHeight);

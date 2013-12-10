@@ -327,7 +327,6 @@ public class MainActivity extends Activity {
 								 */
 
 								Button cancel = (Button) findViewById(R.id.cancel_button);
-								cancel.setText("Cancel");
 								cancel.setOnClickListener(new View.OnClickListener() {
 									public void onClick(View v) {
 										panelHeight = 0;
@@ -340,7 +339,6 @@ public class MainActivity extends Activity {
 								});
 
 								Button ok = (Button) findViewById(R.id.ok_button);
-								ok.setText("OK");
 								ok.setOnClickListener(new View.OnClickListener() {
 									public void onClick(View v) {
 										panelHeight = 0;
@@ -379,8 +377,8 @@ public class MainActivity extends Activity {
 							panelText.setPadding((int) (125 * density * 0.5f),
 									(int) (34 * density * 0.5f),
 									(int) (125 * density * 0.5f), 0);
-							panelText.setText("Mark " + markReadList.size()
-									+ " As Read");
+							panelText.setText(markReadList.size()
+									+ " Articles Selected");
 
 						}
 					}
