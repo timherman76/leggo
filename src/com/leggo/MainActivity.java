@@ -533,16 +533,10 @@ public class MainActivity extends Activity {
 	}
 
 	//@Override
-	/*public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		setContentView(R.layout.activity_main);
-		Log.d("CONFIGURATiONCHANGE", articles.size() + " articles");
-		listArticles();
-		panelHeight = 0;
-		panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-		panel.setPanelHeight(panelHeight);
-		panel.setSlidingEnabled(false);
-	} */
+		Utils.restartActivity(this);
+	} 
 
 	public void markAllAsRead() {
 		for (Article article : markReadList) {
