@@ -234,7 +234,7 @@ public class MainActivity extends Activity {
 			// Article Name Params
 			TableRow.LayoutParams articleNameParam = new TableRow.LayoutParams(
 					TableRow.LayoutParams.WRAP_CONTENT,
-					80, 1f);
+					TableRow.LayoutParams.WRAP_CONTENT, 1f);
 			articleNameParam.setMargins(10, 0, 10, 0);
 
 			// Feed Name Params
